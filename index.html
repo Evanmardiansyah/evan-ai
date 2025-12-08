@@ -120,7 +120,6 @@
             max-width: 85%; font-size: 0.95rem; line-height: 1.6;
         }
 
-        /* Styling gambar di dalam chat bubble */
         .chat-image {
             max-width: 100%; border-radius: 8px; margin-bottom: 8px; display: block; border: 1px solid var(--border-color);
         }
@@ -163,7 +162,6 @@
             display: flex; flex-direction: column; align-items: center; z-index: 100;
         }
         
-        /* Preview Gambar */
         #image-preview-container {
             display: none; position: relative; width: 100%; max-width: 800px;
             background: var(--input-bg); margin-bottom: 8px; border-radius: 12px;
@@ -242,7 +240,7 @@
             <div class="message-content">
                 <p>Halo! Sistem <strong>Memory Context</strong> & <strong>Vision (Mata)</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Fitur Baru 📷</strong>: Klik ikon klip untuk upload foto soal.</li>
+                    <li><strong style="color:var(--conf-high)">Fitur Baru 📷</strong>: Upload atau <strong>Paste (Ctrl+V)</strong> gambar langsung.</li>
                     <li><strong style="color:var(--conf-med)">Ujian</strong>: Foto soal -> AI langsung jawab.</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
@@ -277,7 +275,7 @@
         const MY_API_KEY = REVERSED_KEY.split('').reverse().join('');
         
         let chatHistory = []; 
-        let currentImageBase64 = null; // Variable untuk menyimpan gambar sementara
+        let currentImageBase64 = null; 
 
         const MODES = {
             fast: { 
@@ -323,24 +321,39 @@ ATURAN WAJIB:
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
 
-        // --- FUNGSI IMAGE HANDLING ---
+        // --- FUNGSI IMAGE HANDLING (FILE & PASTE) ---
         function handleImageSelect() {
             const file = document.getElementById('image-input').files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentImageBase64 = e.target.result; // Simpan Base64
-                    imagePreview.src = currentImageBase64; // Tampilkan preview
-                    imagePreviewContainer.style.display = 'block'; // Munculkan container
-                    userInput.focus();
-                };
-                reader.readAsDataURL(file);
+            if (file) processImage(file);
+        }
+
+        // --- FITUR BARU: PASTE SUPPORT ---
+        userInput.addEventListener('paste', function(e) {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                const item = items[index];
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const blob = item.getAsFile();
+                    processImage(blob);
+                    e.preventDefault(); // Supaya tidak muncul teks aneh di textarea
+                }
             }
+        });
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImageBase64 = e.target.result;
+                imagePreview.src = currentImageBase64;
+                imagePreviewContainer.style.display = 'block';
+                userInput.focus();
+            };
+            reader.readAsDataURL(file);
         }
 
         function removeImage() {
             currentImageBase64 = null;
-            document.getElementById('image-input').value = ""; // Reset input file
+            document.getElementById('image-input').value = ""; 
             imagePreviewContainer.style.display = 'none';
         }
 
@@ -384,45 +397,38 @@ ATURAN WAJIB:
             if(e) e.preventDefault();
             
             const text = userInput.value.trim();
-            // Cek: harus ada text ATAU gambar. Kalau dua-duanya kosong, jangan kirim.
             if (!text && !currentImageBase64) return;
             
             userInput.value = ''; userInput.style.height = 'auto';
             userInput.disabled = true; sendBtn.disabled = true;
             
-            // Tampilkan pesan user (Text + Gambar jika ada)
             appendMessage(text, 'user', currentImageBase64);
             
-            // Simpan referensi gambar untuk dikirim, lalu reset di UI
             const imageToSend = currentImageBase64;
-            removeImage(); // Bersihkan preview setelah kirim
+            removeImage(); 
 
             const loadingId = showLoading();
             const selectedConfig = MODES[currentMode];
             
             let messagesPayload = [];
-            let modelToUse = selectedConfig.model; // Default model sesuai mode
+            let modelToUse = selectedConfig.model; 
 
             // --- LOGIKA VISION (MATA AI) ---
             if (imageToSend) {
-                // Jika ada gambar, KITA PAKSA GANTI MODEL ke Vision Preview
-                // Tapi Prompt/Instruksi tetap ikut Mode (Ujian/Pro)
-                modelToUse = "llama-3.2-90b-vision-preview";
+                // MODEL DIPERBARUI: 11b-vision-preview (Yang Aktif)
+                modelToUse = "llama-3.2-11b-vision-preview";
                 
-                // Struktur payload khusus Vision
                 const userContent = [
-                    { type: "text", text: text || "Jelaskan gambar ini" }, // Jika text kosong, kasih default
+                    { type: "text", text: text || "Jelaskan gambar ini" }, 
                     { type: "image_url", image_url: { url: imageToSend } }
                 ];
 
-                // Vision biasanya stateless (sekali tanya) biar aman token
                 messagesPayload = [
                     { role: "system", content: selectedConfig.prompt },
                     { role: "user", content: userContent }
                 ];
             } 
             else {
-                // --- LOGIKA TEXT BIASA (SAMA SEPERTI SEBELUMNYA) ---
                 if (currentMode === 'exam') {
                     messagesPayload = [
                         { role: "system", content: selectedConfig.prompt },
@@ -444,7 +450,7 @@ ATURAN WAJIB:
                     headers: { 'Authorization': `Bearer ${MY_API_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         messages: messagesPayload,
-                        model: modelToUse, // Gunakan model vision jika ada gambar
+                        model: modelToUse, 
                         temperature: selectedConfig.temp, 
                         max_tokens: 4096
                     })
@@ -459,7 +465,6 @@ ATURAN WAJIB:
                     const aiReply = data.choices[0].message.content;
                     appendMessage(aiReply, 'assistant');
                     
-                    // Simpan ke history HANYA jika bukan mode ujian DAN bukan vision (biar hemat memori)
                     if (currentMode !== 'exam' && !imageToSend) {
                         chatHistory.push({ role: "assistant", content: aiReply });
                     }
@@ -483,14 +488,12 @@ ATURAN WAJIB:
             });
         }
 
-        // Update fungsi appendMessage untuk support gambar di bubble chat user
         function appendMessage(text, role, imageUrl = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `message-wrapper ${role}`;
             
             let innerContent = "";
             
-            // Jika ada gambar, tambahkan tag <img>
             if (imageUrl) {
                 innerContent += `<img src="${imageUrl}" class="chat-image">`;
             }
@@ -503,8 +506,6 @@ ATURAN WAJIB:
                 
                 wrapper.innerHTML = `<div class="avatar">${iconSVG}</div><div class="message-content">${innerContent}<div class="msg-toolbar"><button class="icon-btn" onclick="copyText(this)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button></div></div>`;
             } else {
-                // User Bubble
-                // Jika text ada, tampilkan. Jika kosong (cuma kirim gambar), jangan tampilkan teks kosong.
                 if (text) {
                     innerContent += `<div>${text.replace(/\n/g, '<br>')}</div>`;
                 }
