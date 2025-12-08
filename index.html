@@ -8,7 +8,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         body { font-family: 'Share Tech Mono', monospace; }
-        .neon-border { box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e; }
         .scanline {
             width: 100%;
             height: 100px;
@@ -24,13 +23,17 @@
             0% { bottom: 100%; }
             100% { bottom: -100%; }
         }
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #000; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-gray-950 text-green-500 min-h-screen p-4 selection:bg-green-900 selection:text-white relative overflow-hidden">
+<body class="bg-gray-950 text-green-500 min-h-screen p-4 selection:bg-green-900 selection:text-white relative overflow-hidden flex items-center justify-center">
 
     <div class="scanline"></div>
 
-    <div class="max-w-md mx-auto border border-gray-800 rounded-xl bg-black shadow-2xl overflow-hidden relative z-20">
+    <div class="w-full max-w-md border border-gray-800 rounded-xl bg-black shadow-2xl overflow-hidden relative z-20">
         
         <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50 backdrop-blur">
             <div class="flex items-center gap-3">
@@ -57,14 +60,15 @@
                     <span>> INPUT_SOURCE_IMAGE</span>
                     <span class="text-red-500 cursor-pointer hover:text-red-400">[RESET]</span>
                 </div>
-                <div class="border-2 border-dashed border-gray-800 rounded-lg h-48 flex flex-col items-center justify-center bg-gray-900/20 hover:border-green-500/50 hover:bg-gray-900/40 transition-all cursor-pointer group">
-                    <div class="w-16 h-16 mb-3 rounded-full bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div class="border-2 border-dashed border-gray-800 rounded-lg h-48 flex flex-col items-center justify-center bg-gray-900/20 hover:border-green-500/50 hover:bg-gray-900/40 transition-all cursor-pointer group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-green-500/5 group-hover:bg-green-500/10 transition-colors"></div>
+                    <div class="w-16 h-16 mb-3 rounded-full bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform relative z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 group-hover:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
                     </div>
-                    <p class="text-sm text-gray-400">Drop Outfit Image Here</p>
-                    <p class="text-[10px] text-gray-600 mt-1">Supports: JPG, PNG, WEBP</p>
+                    <p class="text-sm text-gray-400 relative z-10">Drop Outfit Image Here</p>
+                    <p class="text-[10px] text-gray-600 mt-1 relative z-10">Supports: JPG, PNG, WEBP</p>
                 </div>
             </div>
 
@@ -78,7 +82,7 @@
                 
                 <div class="grid gap-2">
                     <div class="flex items-center p-3 border border-green-500/30 bg-green-900/10 rounded cursor-pointer hover:bg-green-900/20 hover:border-green-500 transition-all">
-                        <div class="p-2 bg-gray-800 rounded mr-3">👔</div>
+                        <div class="p-2 bg-gray-800 rounded mr-3 text-lg">👔</div>
                         <div class="flex-1">
                             <h3 class="text-sm font-bold text-white">Full Set</h3>
                             <p class="text-[10px] text-gray-400">Baju + Celana (Recommended)</p>
@@ -86,19 +90,11 @@
                         <div class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]"></div>
                     </div>
 
-                    <div class="flex items-center p-3 border border-gray-800 bg-gray-900/10 rounded cursor-pointer hover:border-gray-600 transition-all opacity-60">
-                        <div class="p-2 bg-gray-800 rounded mr-3">👕</div>
+                    <div class="flex items-center p-3 border border-gray-800 bg-gray-900/10 rounded cursor-pointer hover:border-gray-600 transition-all opacity-60 hover:opacity-100">
+                        <div class="p-2 bg-gray-800 rounded mr-3 text-lg">👕</div>
                         <div class="flex-1">
                             <h3 class="text-sm font-bold text-gray-300">Atasan Only</h3>
                             <p class="text-[10px] text-gray-500">Close Up Shot</p>
-                        </div>
-                    </div>
-
-                     <div class="flex items-center p-3 border border-gray-800 bg-gray-900/10 rounded cursor-pointer hover:border-gray-600 transition-all opacity-60">
-                        <div class="p-2 bg-gray-800 rounded mr-3">👖</div>
-                        <div class="flex-1">
-                            <h3 class="text-sm font-bold text-gray-300">Bawahan Only</h3>
-                            <p class="text-[10px] text-gray-500">Focus on Pants/Shoes</p>
                         </div>
                     </div>
                 </div>
@@ -108,7 +104,7 @@
                 <div class="bg-black border border-gray-800 rounded p-3 font-mono text-[10px] h-24 overflow-y-auto custom-scrollbar">
                     <p class="text-gray-500">> Initializing Evan_Core_v2.1...</p>
                     <p class="text-green-600">> [SUCCESS] Connected to Gemini API</p>
-                    <p class="text-gray-500">> Loaded user preference: 91040257</p>
+                    <p class="text-gray-500">> User Identity: 91040257 (Confirmed)</p>
                     <p class="text-gray-500">> Waiting for input image...</p>
                     <p class="animate-pulse text-green-500">> _</p>
                 </div>
