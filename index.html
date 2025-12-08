@@ -241,7 +241,7 @@
                 <p>Halo! Sistem <strong>Memory Context</strong> & <strong>Vision (Mata)</strong> sudah aktif.</p>
                 <ul>
                     <li><strong style="color:var(--conf-high)">PASTE SUPPORT 📷</strong>: Tekan <strong>Ctrl+V</strong> untuk tempel gambar.</li>
-                    <li><strong style="color:var(--conf-med)">Model Baru</strong>: Menggunakan Llama 3.2 Vision Instruct (Versi Stabil).</li>
+                    <li><strong style="color:var(--conf-med)">Model Baru</strong>: Menggunakan Llama 4 Scout (Versi Terbaru Groq).</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
             </div>
@@ -271,8 +271,8 @@
 
     <script>
         // --- KONFIGURASI MODEL & KEAMANAN ---
-        // Ganti nama model Vision di sini jika Groq mengubahnya lagi
-        const VISION_MODEL = "llama-3.2-11b-vision-instruct"; // Versi stabil (tanpa -preview)
+        // PENTING: Menggunakan Model Llama 4 Scout sebagai pengganti Llama 3.2 Vision yang dihapus Groq
+        const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"; 
         
         const REVERSED_KEY = "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg";
         const MY_API_KEY = REVERSED_KEY.split('').reverse().join('');
@@ -418,7 +418,7 @@ ATURAN WAJIB:
 
             // --- LOGIKA VISION (MATA AI) ---
             if (imageToSend) {
-                // MODEL FIX: Pakai model yang didefinisikan di atas
+                // MODEL FIX: Pakai model Llama 4 Scout (Pengganti Llama 3.2 Vision)
                 modelToUse = VISION_MODEL;
                 
                 const userContent = [
