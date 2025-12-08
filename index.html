@@ -3,53 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Assistant</title>
+    <title>Deep Thinker AI</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
-        body { padding: 20px; max-width: 800px; margin: 0 auto; }
+        /* Styling Dark Mode & Layout */
+        body { padding: 20px; max-width: 900px; margin: 0 auto; background-color: #0f0f0f; color: #e0e0e0; }
+        
         #chat-container { 
-            height: 70vh; /* Layar chat lebih tinggi */
+            height: 70vh; 
             overflow-y: auto; 
             border: 1px solid #333; 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin-bottom: 20px;
-            background-color: #1a1a1a;
+            padding: 25px; 
+            border-radius: 12px; 
+            margin-bottom: 25px;
+            background-color: #161616;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        .message { margin-bottom: 15px; padding: 10px; border-radius: 8px; }
-        .user { background-color: #2c3e50; text-align: right; margin-left: 20%; }
-        .assistant { background-color: #34495e; text-align: left; margin-right: 20%; }
-        .loading { font-style: italic; color: #888; }
+
+        /* Tampilan Pesan */
+        .message { margin-bottom: 25px; padding: 15px 20px; border-radius: 8px; max-width: 90%; }
+        
+        /* User Bubble */
+        .user { 
+            background-color: #2c3e50; 
+            color: #fff;
+            margin-left: auto; /* Rata kanan */
+            border-bottom-right-radius: 2px;
+            text-align: right;
+        }
+        
+        /* AI Bubble */
+        .assistant { 
+            background-color: #262626; 
+            border: 1px solid #404040; 
+            margin-right: auto; /* Rata kiri */
+            border-bottom-left-radius: 2px;
+            text-align: left;
+        }
+
+        /* Highlight Output AI */
+        .assistant strong { color: #81c784; font-weight: 600; }
+        .assistant em { color: #ffd54f; }
+        
+        /* Input Area */
+        #user-input { background-color: #222; border: 1px solid #444; color: white; transition: border-color 0.3s; }
+        #user-input:focus { border-color: #81c784; --pico-form-element-focus-color: #81c784; }
+        
+        button { background-color: #333; border-color: #555; font-weight: bold; }
+        button:hover { background-color: #444; border-color: #666; }
+        
+        /* Scrollbar Halus */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
     </style>
 </head>
 <body>
 
     <nav>
         <ul>
-            <li><strong>Asisten Pribadi (Groq)</strong></li>
+            <li><strong>Deep Thinker AI</strong> <small style="color:#666; margin-left:10px;">(Powered by Groq Llama-3 70B)</small></li>
         </ul>
     </nav>
 
     <main id="main-interface">
         <div id="chat-container">
-            <div class="message assistant">Halo Bos! Siap menerima perintah.</div>
+            <div class="message assistant">
+                Sistem siap. Mode analisis kritis diaktifkan. Silakan berikan topik atau permasalahan untuk kita bedah secara mendalam.
+            </div>
         </div>
 
         <form onsubmit="sendMessage(event)">
             <div class="grid">
-                <input type="text" id="user-input" placeholder="Ketik pesan..." required autocomplete="off">
-                <button type="submit">Kirim</button>
+                <input type="text" id="user-input" placeholder="Ketik topik diskusi..." required autocomplete="off">
+                <button type="submit" id="send-btn">Analisa</button>
             </div>
         </form>
     </main>
 
     <script>
-        // --- PENGATURAN KUNCI ---
-        // MASUKKAN API KEY GROQ ANDA DI BAWAH INI (Di dalam tanda kutip)
+        // --- KONFIGURASI API ---
         const MY_API_KEY = "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"; 
-        // ------------------------
+        // -----------------------
+
+        // Prompt Sistem (Persona Deep Thinker)
+        const SYSTEM_PROMPT = `
+Tugasmu adalah tidak hanya memberikan jawaban, tapi juga menunjukkan cara berpikir logis, mempertimbangkan berbagai sudut pandang, dan menguji argumen secara kritis. Saat menjawab, gunakan pendekatan seperti seorang peneliti, filsuf, dan problem-solver profesional yang mampu memadukan rasionalitas, kreativitas, dan skeptisisme sehat.
+
+Gunakan struktur berpikir eksplisit:
+1. Analisis masalah / pertanyaan utama
+2. Identifikasi asumsi tersembunyi
+3. Kaji alternatif atau kontra-argumen
+4. Tarik kesimpulan logis
+5. (Opsional) Beri insight tambahan atau ide lanjutan untuk eksplorasi lebih dalam.
+
+Jika ada data yang kurang, jelaskan apa yang perlu diketahui dan buat hipotesis masuk akal berdasarkan konteks.
+Prioritaskan kedalaman pemikiran daripada kecepatan jawaban. Saat diminta ide kreatif, berikan ide yang orisinal, out-of-the-box, namun tetap rasional dan bisa dieksekusi.
+
+Gaya komunikasi: profesional, lugas, namun tetap bisa disesuaikan dengan konteks (misalnya lebih santai untuk brainstorming kreatif).
+
+Saat siap, jawab setiap pertanyaan atau tugas dengan cara paling cerdas, logis, dan kritis yang bisa kamu lakukan.
+        `;
 
         const chatContainer = document.getElementById('chat-container');
+        const sendBtn = document.getElementById('send-btn');
 
         async function sendMessage(e) {
             e.preventDefault();
@@ -57,12 +118,17 @@
             const userText = inputField.value;
             if (!userText) return;
 
-            // 1. Tampilkan pesan user
+            // Kunci tombol kirim
+            inputField.disabled = true;
+            sendBtn.disabled = true;
+            sendBtn.innerText = "Berpikir...";
+
+            // Tampilkan pesan user
             appendMessage(userText, 'user');
             inputField.value = '';
 
-            // 2. Tampilkan status loading
-            const loadingId = appendMessage('Sedang memproses...', 'assistant loading');
+            // Loading state
+            const loadingId = appendMessage('Sedang melakukan analisis mendalam...', 'assistant');
 
             try {
                 const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -73,41 +139,62 @@
                     },
                     body: JSON.stringify({
                         messages: [
-                            // System prompt: Mengatur kepribadian AI
-                            { role: "system", content: "Kamu adalah asisten pribadi yang efisien. Jawab dengan ringkas dan jelas dalam Bahasa Indonesia." },
-                            
-                            // User prompt
+                            { role: "system", content: SYSTEM_PROMPT },
                             { role: "user", content: userText }
                         ],
-                        model: "llama3-8b-8192", // Model cepat
-                        temperature: 0.7
+                        // Menggunakan model besar (70B) untuk logika yang lebih baik
+                        model: "llama3-70b-8192", 
+                        temperature: 0.6, 
+                        max_tokens: 4096 
                     })
                 });
 
                 const data = await response.json();
                 
-                // Hapus tulisan loading
-                document.getElementById(loadingId).remove();
+                // Hapus loading
+                const loadingDiv = document.getElementById(loadingId);
+                if(loadingDiv) loadingDiv.remove();
 
                 if (data.error) {
-                    appendMessage('Error: Cek API Key Anda. ' + data.error.message, 'assistant');
+                    appendMessage('Error API: ' + data.error.message, 'assistant');
                 } else {
-                    const aiReply = data.choices[0].message.content;
-                    appendMessage(aiReply, 'assistant');
+                    // Format output: ganti baris baru jadi <br> dan bold text
+                    let aiReply = data.choices[0].message.content;
+                    
+                    // Convert markdown bold to HTML bold (simple regex)
+                    aiReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    
+                    // Convert newlines to breaks
+                    aiReply = aiReply.replace(/\n/g, '<br>');
+                    
+                    appendMessage(aiReply, 'assistant', true);
                 }
 
             } catch (error) {
-                document.getElementById(loadingId).remove();
-                appendMessage('Gagal koneksi. Cek internet.', 'assistant');
+                const loadingDiv = document.getElementById(loadingId);
+                if(loadingDiv) loadingDiv.remove();
+                appendMessage('Koneksi Gagal. Cek internet Anda.', 'assistant');
                 console.error(error);
+            } finally {
+                // Buka kunci tombol
+                inputField.disabled = false;
+                sendBtn.disabled = false;
+                sendBtn.innerText = "Analisa";
+                inputField.focus();
             }
         }
 
-        function appendMessage(text, role) {
+        function appendMessage(text, role, isHtml = false) {
             const div = document.createElement('div');
-            div.id = Math.random().toString(36).substr(2, 9);
             div.className = `message ${role}`;
-            div.innerText = text; 
+            div.id = Math.random().toString(36).substr(2, 9);
+            
+            if (isHtml) {
+                div.innerHTML = text;
+            } else {
+                div.innerText = text;
+            }
+            
             chatContainer.appendChild(div);
             chatContainer.scrollTop = chatContainer.scrollHeight; 
             return div.id;
