@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVAN STUDIO AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        body { font-family: 'Share Tech Mono', monospace; }
+        .neon-border { box-shadow: 0 0 5px #22c55e, 0 0 10px #22c55e; }
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 10;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(34, 197, 94, 0.1) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1;
+            position: absolute;
+            bottom: 100%;
+            animation: scanline 10s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: -100%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-green-500 min-h-screen p-4 selection:bg-green-900 selection:text-white relative overflow-hidden">
+
+    <div class="scanline"></div>
+
+    <div class="max-w-md mx-auto border border-gray-800 rounded-xl bg-black shadow-2xl overflow-hidden relative z-20">
+        
+        <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50 backdrop-blur">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full border border-green-500 flex items-center justify-center bg-green-900/20 shadow-[0_0_10px_rgba(34,197,94,0.5)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-widest text-white">EVAN STUDIO</h1>
+                    <p class="text-xs text-green-600 tracking-wider">• KREATOR SPECIALIST A.I</p>
+                </div>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white">PRO</span>
+                <span class="text-[10px] text-gray-500 mt-1">SESSION: ID-9104</span>
+            </div>
+        </div>
+
+        <div class="p-5 space-y-6">
+
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs text-gray-500 uppercase">
+                    <span>> INPUT_SOURCE_IMAGE</span>
+                    <span class="text-red-500 cursor-pointer hover:text-red-400">[RESET]</span>
+                </div>
+                <div class="border-2 border-dashed border-gray-800 rounded-lg h-48 flex flex-col items-center justify-center bg-gray-900/20 hover:border-green-500/50 hover:bg-gray-900/40 transition-all cursor-pointer group">
+                    <div class="w-16 h-16 mb-3 rounded-full bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 group-hover:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                    </div>
+                    <p class="text-sm text-gray-400">Drop Outfit Image Here</p>
+                    <p class="text-[10px] text-gray-600 mt-1">Supports: JPG, PNG, WEBP</p>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 text-xs text-amber-500 uppercase">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span>SELECT MODE</span>
+                </div>
+                
+                <div class="grid gap-2">
+                    <div class="flex items-center p-3 border border-green-500/30 bg-green-900/10 rounded cursor-pointer hover:bg-green-900/20 hover:border-green-500 transition-all">
+                        <div class="p-2 bg-gray-800 rounded mr-3">👔</div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-white">Full Set</h3>
+                            <p class="text-[10px] text-gray-400">Baju + Celana (Recommended)</p>
+                        </div>
+                        <div class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]"></div>
+                    </div>
+
+                    <div class="flex items-center p-3 border border-gray-800 bg-gray-900/10 rounded cursor-pointer hover:border-gray-600 transition-all opacity-60">
+                        <div class="p-2 bg-gray-800 rounded mr-3">👕</div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-gray-300">Atasan Only</h3>
+                            <p class="text-[10px] text-gray-500">Close Up Shot</p>
+                        </div>
+                    </div>
+
+                     <div class="flex items-center p-3 border border-gray-800 bg-gray-900/10 rounded cursor-pointer hover:border-gray-600 transition-all opacity-60">
+                        <div class="p-2 bg-gray-800 rounded mr-3">👖</div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-gray-300">Bawahan Only</h3>
+                            <p class="text-[10px] text-gray-500">Focus on Pants/Shoes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-4 mt-2">
+                <div class="bg-black border border-gray-800 rounded p-3 font-mono text-[10px] h-24 overflow-y-auto custom-scrollbar">
+                    <p class="text-gray-500">> Initializing Evan_Core_v2.1...</p>
+                    <p class="text-green-600">> [SUCCESS] Connected to Gemini API</p>
+                    <p class="text-gray-500">> Loaded user preference: 91040257</p>
+                    <p class="text-gray-500">> Waiting for input image...</p>
+                    <p class="animate-pulse text-green-500">> _</p>
+                </div>
+            </div>
+
+            <button class="w-full py-3 bg-green-600 hover:bg-green-500 text-black font-bold text-sm tracking-widest uppercase rounded shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all active:scale-95">
+                GENERATE MOCKUP
+            </button>
+
+        </div>
+    </div>
+</body>
+</html>
