@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Evan AI (Secure & Responsive)</title>
+    <title>Evan AI (Exam Optimized)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -12,6 +12,7 @@
 
     <style>
         :root {
+            /* Warna Tema Gelap (Default) */
             --bg-color: #131314;       
             --header-bg: #131314;
             --input-area-bg: #131314;
@@ -24,9 +25,12 @@
             --code-bg: #1e1f20;
             --accent-color: #a8c7fa;
             --hover-bg: #2a2b2e;
+            --exam-answer-bg: #1e281e; /* Hijau gelap transparan untuk highlight jawaban */
+            --exam-answer-border: #4caf50;
         }
 
         [data-theme="light"] {
+            /* Warna Tema Terang */
             --bg-color: #ffffff;
             --header-bg: #ffffff;
             --input-area-bg: #ffffff;
@@ -39,6 +43,8 @@
             --code-bg: #f5f5f5;
             --accent-color: #0b57d0;
             --hover-bg: #f2f2f2;
+            --exam-answer-bg: #e6f4ea;
+            --exam-answer-border: #137333;
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -111,6 +117,19 @@
             word-wrap: break-word; word-break: break-word; overflow-wrap: break-word;
         }
 
+        /* KHUSUS HIGHLIGHT JAWABAN */
+        /* Kita akan styling manual lewat Prompt AI agar baris pertama jadi besar */
+        .assistant h1 { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            color: #4caf50; /* Hijau Jawaban */
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: inline-block;
+            border-bottom: 2px solid #4caf50;
+            padding-bottom: 2px;
+        }
+
         /* MARKDOWN */
         .assistant strong { font-weight: 700; color: var(--text-primary); }
         .assistant p { margin-top: 0; margin-bottom: 10px; }
@@ -146,16 +165,6 @@
             background: var(--text-primary); color: var(--bg-color); border: none; 
             width: 36px; height: 36px; border-radius: 50%; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; margin-left: 8px; flex-shrink: 0;
-        }
-
-        /* MOBILE TWEAKS */
-        @media (max-width: 480px) {
-            header { padding: 10px 12px; }
-            .brand span { display: none; } 
-            .brand svg { width: 28px; height: 28px; }
-            .message-wrapper.user .message-content { max-width: 90%; }
-            #chat-container { padding: 10px 10px 100px 10px; }
-            .mode-select { font-size: 0.75rem; padding: 6px 24px 6px 10px; }
         }
 
         /* Utilities */
@@ -196,7 +205,7 @@
     <div id="chat-container">
         <div class="message-wrapper assistant">
             <div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div>
-            <div class="message-content"><p>Sistem siap! API Key sudah disamarkan agar lebih aman.</p></div>
+            <div class="message-content"><p>Sistem siap! <strong>Mode Ujian</strong> sekarang akan menampilkan Jawaban di baris pertama.</p></div>
         </div>
     </div>
 
@@ -208,19 +217,38 @@
     </div>
 
     <script>
-        // --- API KEY SAMARAN (OBFUSCATION) ---
-        // Ini aman 100% dan tidak akan merusak fungsi AI
+        // --- API KEY SAMARAN ---
         const _k1 = "gsk_eN6UBilE1yADaXZyDMr";
         const _k2 = "RWGdyb3FYFgjUZB72cpJJv5ZpkIKm4maQ";
-        
-        // Digabung otomatis oleh browser
         const MY_API_KEY = _k1 + _k2; 
-        // -------------------------------------
         
         const MODES = {
-            fast: { name: "Cepat", model: "llama-3.1-8b-instant", temp: 0.8, prompt: "Jawab cepat dan santai." },
-            pro: { name: "Pro", model: "llama-3.3-70b-versatile", temp: 0.6, prompt: "Jawab detail dan terstruktur (Markdown)." },
-            exam: { name: "Ujian", model: "llama-3.3-70b-versatile", temp: 0.1, prompt: "MODE UJIAN: Analisis kata jebakan, eliminasi opsi, beri tingkat keyakinan." }
+            fast: { 
+                name: "Cepat", 
+                model: "llama-3.1-8b-instant", 
+                temp: 0.8, 
+                prompt: "Jawab cepat dan santai." 
+            },
+            pro: { 
+                name: "Pro", 
+                model: "llama-3.3-70b-versatile", 
+                temp: 0.6, 
+                prompt: "Jawab detail dan terstruktur (Markdown)." 
+            },
+            exam: { 
+                name: "Ujian", 
+                model: "llama-3.3-70b-versatile", 
+                temp: 0.1, 
+                // --- PROMPT RAHASIA AGAR JAWABAN DI ATAS ---
+                prompt: `Kamu adalah Asisten Ujian.
+ATURAN FORMAT OUTPUT (WAJIB DIPATUHI):
+1. Baris Pertama WAJIB: "# JAWABAN: [Huruf]" (Gunakan tanda pagar # agar font besar).
+2. Baris Kedua: Kosong.
+3. Baris Ketiga: "Alasan Utama: [Penjelasan]"
+4. Baris Berikutnya: "Kenapa yang lain salah?" dan "(Tingkat Keyakinan)".
+
+JANGAN memberikan pengantar seperti "Berdasarkan analisis...". LANGSUNG JAWABAN.` 
+            }
         };
 
         let currentMode = 'pro';
