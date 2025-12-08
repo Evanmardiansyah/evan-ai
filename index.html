@@ -168,8 +168,18 @@
         #user-input { 
             flex: 1; background: transparent; border: none; color: var(--text-primary); 
             font-size: 1rem; padding: 12px 0; font-family: inherit; 
-            resize: none; overflow: hidden; max-height: 200px; min-height: 24px; line-height: 1.5;
+            resize: none; 
+            
+            /* --- FIX SCROLL MOUSE --- */
+            overflow-y: auto; /* Mengaktifkan scroll vertikal */
+            max-height: 200px; 
+            min-height: 24px; 
+            line-height: 1.5;
         }
+        /* Custom Scrollbar untuk Input Box biar rapi */
+        #user-input::-webkit-scrollbar { width: 4px; }
+        #user-input::-webkit-scrollbar-thumb { background-color: var(--text-secondary); border-radius: 4px; opacity: 0.5; }
+
         #send-btn { 
             background: var(--text-primary); color: var(--bg-color); border: none; 
             width: 36px; height: 36px; border-radius: 50%; cursor: pointer; 
