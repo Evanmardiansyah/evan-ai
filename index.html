@@ -179,7 +179,7 @@
         
         #image-preview { 
             height: 48px; width: auto; 
-            border-radius: 8px; display: block; cursor: pointer; /* Cursor tangan saat hover */
+            border-radius: 8px; display: block; cursor: pointer; 
         }
         
         .preview-info {
@@ -282,7 +282,7 @@
                 <p>Halo! Sistem <strong>Memory Context</strong> & <strong>Vision (Mata)</strong> sudah aktif.</p>
                 <ul>
                     <li><strong style="color:var(--conf-high)">PASTE SUPPORT 📷</strong>: Tekan <strong>Ctrl+V</strong> untuk tempel gambar.</li>
-                    <li><strong style="color:var(--conf-med)">Klik Zoom</strong>: Klik gambar kecil di atas untuk melihat ukuran penuh.</li>
+                    <li><strong style="color:var(--conf-med)">Model Baru</strong>: Menggunakan Llama 4 Scout (Versi Stabil).</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
             </div>
@@ -320,9 +320,8 @@
 
     <script>
         // --- KONFIGURASI MODEL & KEAMANAN ---
-        // Jika llama-3.2-11b-vision-preview error, gunakan yang 90b atau llama-3.2-11b-vision-preview (Groq sering update)
-        // Saat ini kita set default ke llama-3.2-11b-vision-preview karena ini standard free tier
-        const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"; 
+        // MODEL RESMI: Llama 4 Scout (Pengganti Llama 3.2 11B/90B Vision yang sudah mati)
+        const VISION_MODEL = "llama-4-scout-17b-16e-instruct"; 
         
         const REVERSED_KEY = "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg";
         const MY_API_KEY = REVERSED_KEY.split('').reverse().join('');
@@ -600,4 +599,3 @@ ATURAN WAJIB:
     </script>
 </body>
 </html>
-
