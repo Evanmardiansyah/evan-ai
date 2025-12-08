@@ -120,9 +120,8 @@
             max-width: 85%; font-size: 0.95rem; line-height: 1.6;
         }
 
-        /* Gambar di dalam History Chat (Tetap agak besar biar terbaca) */
         .chat-image {
-            max-width: 300px; border-radius: 12px; margin-bottom: 8px; display: block; border: 1px solid var(--border-color);
+            max-width: 300px; border-radius: 12px; margin-bottom: 8px; display: block; border: 1px solid var(--border-color); cursor: pointer;
         }
 
         .message-wrapper.assistant .message-content { 
@@ -179,8 +178,8 @@
         }
         
         #image-preview { 
-            height: 48px; width: auto; /* Ukuran Thumbnail Kecil */
-            border-radius: 8px; display: block; 
+            height: 48px; width: auto; 
+            border-radius: 8px; display: block; cursor: pointer; /* Cursor tangan saat hover */
         }
         
         .preview-info {
@@ -222,6 +221,27 @@
         #attach-btn { margin-right: 4px; }
         #attach-btn:hover { color: var(--text-primary); background: var(--hover-bg); }
 
+        /* --- MODAL (LIGHTBOX) GAMBAR --- */
+        .modal {
+            display: none; position: fixed; z-index: 2000; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.9); overflow: auto;
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            margin: auto; display: block; max-width: 90%; max-height: 90vh;
+            border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            animation: zoomIn 0.3s;
+        }
+        @keyframes zoomIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+        
+        .close-modal {
+            position: absolute; top: 20px; right: 30px;
+            color: #f1f1f1; font-size: 40px; font-weight: bold;
+            cursor: pointer; transition: 0.3s;
+        }
+        .close-modal:hover { color: #ef5350; }
+
         /* Utilities */
         .msg-toolbar { display: flex; gap: 8px; margin-top: 5px; opacity: 0.6; }
         .icon-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 5px; }
@@ -261,8 +281,8 @@
             <div class="message-content">
                 <p>Halo! Sistem <strong>Memory Context</strong> & <strong>Vision (Mata)</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Gemini UI 📷</strong>: Preview gambar sekarang kecil & rapi (Chip).</li>
-                    <li><strong style="color:var(--conf-med)">Model Fix</strong>: Menggunakan Llama 4 Scout (Support Vision).</li>
+                    <li><strong style="color:var(--conf-high)">PASTE SUPPORT 📷</strong>: Tekan <strong>Ctrl+V</strong> untuk tempel gambar.</li>
+                    <li><strong style="color:var(--conf-med)">Klik Zoom</strong>: Klik gambar kecil di atas untuk melihat ukuran penuh.</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
             </div>
@@ -272,7 +292,7 @@
     <div class="input-container">
         <div id="image-preview-container">
             <div class="preview-chip">
-                <img id="image-preview" src="" alt="Preview">
+                <img id="image-preview" src="" alt="Preview" onclick="showModal(this.src)">
                 <span class="preview-info">Gambar Terlampir</span>
                 <button id="remove-image-btn" onclick="removeImage()">✕</button>
             </div>
@@ -293,10 +313,16 @@
         </div>
     </div>
 
+    <div id="image-modal" class="modal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="expanded-image">
+    </div>
+
     <script>
         // --- KONFIGURASI MODEL & KEAMANAN ---
-        // PENTING: Model Resmi Groq Vision yang BARU (Pengganti Llama 3.2 11B/90B Vision yang sudah mati)
-        const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"; 
+        // Jika llama-3.2-11b-vision-preview error, gunakan yang 90b atau llama-3.2-11b-vision-preview (Groq sering update)
+        // Saat ini kita set default ke llama-3.2-11b-vision-preview karena ini standard free tier
+        const VISION_MODEL = "llama-3.2-11b-vision-preview"; 
         
         const REVERSED_KEY = "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg";
         const MY_API_KEY = REVERSED_KEY.split('').reverse().join('');
@@ -336,6 +362,10 @@ ATURAN WAJIB:
         const themeIcon = document.getElementById('theme-icon');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
+        
+        // Modal Element
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('expanded-image');
 
         function changeMode() {
             currentMode = modeSelect.value;
@@ -346,6 +376,16 @@ ATURAN WAJIB:
             sysDiv.innerHTML = `Mode diubah ke <span>${config.name}</span> • Memori di-reset`;
             chatContainer.appendChild(sysDiv);
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        }
+
+        // --- FUNGSI MODAL (ZOOM GAMBAR) ---
+        function showModal(src) {
+            modal.style.display = "flex";
+            modalImg.src = src;
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
         }
 
         // --- FUNGSI IMAGE HANDLING (FILE & PASTE) ---
@@ -371,7 +411,7 @@ ATURAN WAJIB:
             reader.onload = function(e) {
                 currentImageBase64 = e.target.result;
                 imagePreview.src = currentImageBase64;
-                imagePreviewContainer.style.display = 'block'; // Tampilkan chip
+                imagePreviewContainer.style.display = 'block'; 
                 userInput.focus();
             };
             reader.readAsDataURL(file);
@@ -428,6 +468,7 @@ ATURAN WAJIB:
             userInput.value = ''; userInput.style.height = 'auto';
             userInput.disabled = true; sendBtn.disabled = true;
             
+            // Tampilkan pesan dengan fitur klik gambar
             appendMessage(text, 'user', currentImageBase64);
             
             const imageToSend = currentImageBase64;
@@ -441,7 +482,6 @@ ATURAN WAJIB:
 
             // --- LOGIKA VISION (MATA AI) ---
             if (imageToSend) {
-                // MODEL FIX: Pakai model Vision resmi yang aktif (Llama 4 Scout)
                 modelToUse = VISION_MODEL;
                 
                 const userContent = [
@@ -521,7 +561,8 @@ ATURAN WAJIB:
             let innerContent = "";
             
             if (imageUrl) {
-                innerContent += `<img src="${imageUrl}" class="chat-image">`;
+                // Tambahkan onclick untuk zoom gambar di history chat juga
+                innerContent += `<img src="${imageUrl}" class="chat-image" onclick="showModal(this.src)">`;
             }
             
             if (role === 'assistant') {
