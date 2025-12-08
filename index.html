@@ -213,13 +213,12 @@
         <div class="message-wrapper assistant">
             <div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div>
             <div class="message-content">
-                <p>Halo! Sistem pewarnaan keyakinan sudah aktif.</p>
+                <p>Halo! Sistem <strong>Memory Context</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Hijau</strong>: Yakin banget (80-100%)</li>
-                    <li><strong style="color:var(--conf-med)">Oranye</strong>: Ragu-ragu (50-79%)</li>
-                    <li><strong style="color:var(--conf-low)">Merah</strong>: Tidak yakin (< 50%)</li>
+                    <li><strong style="color:var(--conf-high)">Pro & Cepat</strong>: Bisa mengingat percakapan sebelumnya.</li>
+                    <li><strong style="color:var(--conf-low)">Ujian</strong>: Fokus per soal (tidak ingat masa lalu).</li>
                 </ul>
-                <p>Coba tes dengan soal ujian, Bro!</p>
+                <p>Silakan dicoba, Gan!</p>
             </div>
         </div>
     </div>
@@ -238,6 +237,9 @@
         const _k2 = "RWGdyb3FYFgjUZB72cpJJv5ZpkIKm4maQ";
         const MY_API_KEY = _k1 + _k2; 
         
+        // --- VARIABEL UNTUK MENYIMPAN RIWAYAT CHAT (HISTORY) ---
+        let chatHistory = []; 
+
         const MODES = {
             fast: { 
                 name: "Cepat (Flash)", desc: "Mode santai & respon kilat",
@@ -271,10 +273,14 @@ ATURAN WAJIB:
 
         function changeMode() {
             currentMode = modeSelect.value;
+            
+            // FITUR PENTING: Reset ingatan saat ganti mode agar tidak bingung
+            chatHistory = []; 
+
             const config = MODES[currentMode];
             const sysDiv = document.createElement('div');
             sysDiv.className = 'system-notification';
-            sysDiv.innerHTML = `Mode diubah ke <span>${config.name}</span> • ${config.desc}`;
+            sysDiv.innerHTML = `Mode diubah ke <span>${config.name}</span> • Memori di-reset`;
             chatContainer.appendChild(sysDiv);
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
@@ -319,24 +325,67 @@ ATURAN WAJIB:
             if(e) e.preventDefault();
             const text = userInput.value.trim();
             if (!text) return;
+            
             userInput.value = ''; userInput.style.height = 'auto';
             userInput.disabled = true; sendBtn.disabled = true;
             appendMessage(text, 'user');
+            
             const loadingId = showLoading();
             const selectedConfig = MODES[currentMode];
+            
+            // --- LOGIKA PESAN BARU (CORE LOGIC) ---
+            let messagesPayload = [];
+
+            if (currentMode === 'exam') {
+                // LOGIKA KHUSUS UJIAN: Hapus masa lalu, fokus pertanyaan ini saja
+                messagesPayload = [
+                    { role: "system", content: selectedConfig.prompt },
+                    { role: "user", content: text }
+                ];
+            } else {
+                // LOGIKA PRO & FAST: Pakai Ingatan (History)
+                // 1. Tambahkan pesan user baru ke history lokal
+                chatHistory.push({ role: "user", content: text });
+
+                // 2. Batasi history agar tidak terlalu boros limit (Max 20 pesan terakhir)
+                if (chatHistory.length > 20) {
+                    chatHistory = chatHistory.slice(-20);
+                }
+
+                // 3. Gabungkan System Prompt + History Chat
+                messagesPayload = [
+                    { role: "system", content: selectedConfig.prompt },
+                    ...chatHistory
+                ];
+            }
+
             try {
                 const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${MY_API_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        messages: [{ role: "system", content: selectedConfig.prompt }, { role: "user", content: text }],
-                        model: selectedConfig.model, temperature: selectedConfig.temp, max_tokens: 4096
+                        messages: messagesPayload,
+                        model: selectedConfig.model, 
+                        temperature: selectedConfig.temp, 
+                        max_tokens: 4096
                     })
                 });
+                
                 const data = await response.json();
                 removeLoading(loadingId);
-                if (data.error) appendMessage("Error: " + data.error.message, 'assistant');
-                else appendMessage(data.choices[0].message.content, 'assistant');
+                
+                if (data.error) {
+                    appendMessage("Error: " + data.error.message, 'assistant');
+                } else {
+                    const aiReply = data.choices[0].message.content;
+                    appendMessage(aiReply, 'assistant');
+
+                    // Jika BUKAN mode ujian, simpan jawaban AI ke ingatan
+                    if (currentMode !== 'exam') {
+                        chatHistory.push({ role: "assistant", content: aiReply });
+                    }
+                }
+
             } catch (err) {
                 removeLoading(loadingId);
                 appendMessage("Gagal koneksi.", 'assistant');
@@ -347,13 +396,12 @@ ATURAN WAJIB:
 
         // --- FUNGSI DETEKTOR WARNA KEYAKINAN ---
         function styleConfidence(html) {
-            // Regex untuk mencari pola (Tingkat Keyakinan: 80%) dan sejenisnya
             return html.replace(/\(Tingkat Keyakinan:\s*(\d+)%\)/gi, function(match, score) {
                 let num = parseInt(score);
-                let cssClass = 'confidence-low'; // Merah (Default)
+                let cssClass = 'confidence-low'; 
                 
-                if (num >= 80) cssClass = 'confidence-high'; // Hijau
-                else if (num >= 50) cssClass = 'confidence-med'; // Oranye
+                if (num >= 80) cssClass = 'confidence-high'; 
+                else if (num >= 50) cssClass = 'confidence-med'; 
                 
                 return `<span class="${cssClass}">${match}</span>`;
             });
@@ -365,10 +413,7 @@ ATURAN WAJIB:
             if (role === 'assistant') {
                 const iconSVG = `<svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`;
                 
-                // 1. Render Markdown
                 let contentHtml = marked.parse(text);
-                
-                // 2. Terapkan Warna Otomatis ke Tingkat Keyakinan
                 contentHtml = styleConfidence(contentHtml);
 
                 wrapper.innerHTML = `<div class="avatar">${iconSVG}</div><div class="message-content">${contentHtml}<div class="msg-toolbar"><button class="icon-btn" onclick="copyText(this)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button></div></div>`;
@@ -397,5 +442,3 @@ ATURAN WAJIB:
     </script>
 </body>
 </html>
-
-
