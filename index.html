@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Evan AI (Multi-Mode)</title>
+    <title>Evan AI (Multi-Mode Fixed)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -17,7 +17,6 @@
             --text-primary: #e3e3e3;
             --user-bubble: #282a2c;
             --accent-blue: #a8c7fa;
-            --accent-exam: #4caf50;
         }
 
         * { box-sizing: border-box; outline: none; }
@@ -29,7 +28,7 @@
             display: flex; flex-direction: column; overflow: hidden; 
         }
 
-        /* HEADER & MODE SELECTOR */
+        /* HEADER */
         header { 
             padding: 15px 20px; 
             display: flex; align-items: center; justify-content: space-between;
@@ -37,33 +36,16 @@
         }
         
         .brand { font-size: 1.2rem; font-weight: 500; display: flex; align-items: center; gap: 8px; }
-        .brand svg { width: 24px; height: 24px; }
-
-        /* Dropdown Styling ala Gemini */
-        .mode-select-wrapper {
-            position: relative;
-        }
-        .mode-select {
-            appearance: none;
-            background-color: #2a2b2e;
-            color: #e3e3e3;
-            border: 1px solid #444;
-            padding: 8px 35px 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: inherit;
-        }
-        .mode-select:hover { background-color: #333; }
-        .mode-select:focus { border-color: #a8c7fa; }
         
-        /* Custom Arrow */
-        .mode-arrow {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            pointer-events: none; width: 10px; height: 10px; fill: #aaa;
+        /* Dropdown Mode */
+        .mode-select-wrapper { position: relative; }
+        .mode-select {
+            appearance: none; background-color: #2a2b2e; color: #e3e3e3;
+            border: 1px solid #444; padding: 8px 35px 8px 15px; border-radius: 20px;
+            font-size: 0.9rem; cursor: pointer; font-family: inherit;
         }
+        .mode-select:focus { border-color: #a8c7fa; }
+        .mode-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; width: 10px; fill: #aaa; }
 
         /* CHAT AREA */
         #chat-container { 
@@ -83,18 +65,19 @@
         .message-wrapper.user .message-content { background: var(--user-bubble); padding: 10px 20px; border-radius: 18px; border-top-right-radius: 4px; max-width: 85%; }
         .message-wrapper.assistant .message-content { background: transparent; width: 100%; }
 
-        /* MARKDOWN */
+        /* MARKDOWN STYLES */
         .assistant strong { color: #fff; font-weight: 700; }
-        .assistant p { margin-top: 0; margin-bottom: 10px; }
+        .assistant p { margin-top: 0; margin-bottom: 10px; line-height: 1.6; }
+        .assistant ul { margin-left: 20px; margin-bottom: 10px; }
         .assistant pre { background: #1e1f20; border-radius: 10px; padding: 15px; overflow-x: auto; border: 1px solid #333; margin: 10px 0; }
         .assistant code { font-family: 'Consolas', monospace; font-size: 0.9em; }
 
-        /* NOTIFICATION TOAST */
+        /* TOAST NOTIFICATION */
         #toast {
-            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
             background: #333; color: #fff; padding: 8px 16px; border-radius: 20px;
             font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 50;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid #444;
+            border: 1px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
         /* INPUT AREA */
@@ -106,7 +89,7 @@
         #send-btn:hover { transform: scale(1.05); }
         #send-btn:disabled { background: #444; cursor: not-allowed; }
 
-        /* Loading Dots */
+        /* Loading Animation */
         .typing span { display: inline-block; width: 6px; height: 6px; background: #aaa; border-radius: 50%; margin: 0 2px; animation: blink 1.4s infinite; }
         @keyframes blink { 50% { opacity: 0.2; } }
     </style>
@@ -115,7 +98,7 @@
 
     <header>
         <div class="brand">
-            <svg viewBox="0 0 24 24">
+            <svg viewBox="0 0 24 24" width="24" height="24">
                 <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#4285f4"/><stop offset="100%" style="stop-color:#d96570"/></linearGradient></defs>
                 <path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/>
             </svg>
@@ -132,7 +115,7 @@
         </div>
     </header>
 
-    <div id="toast">Mode diubah ke Pro</div>
+    <div id="toast">Mode diubah</div>
 
     <div id="chat-container">
         <div class="message-wrapper assistant">
@@ -140,20 +123,19 @@
                 <svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>
             </div>
             <div class="message-content">
-                <p>Halo! Sekarang Anda bisa memilih mode di pojok kanan atas:</p>
+                <p>Halo! Sistem sudah diperbaiki.</p>
                 <ul>
-                    <li><strong>⚡ Cepat:</strong> Untuk obrolan ringan.</li>
-                    <li><strong>✨ Pro:</strong> Untuk coding & tugas umum (Default).</li>
-                    <li><strong>🛡️ Ujian:</strong> Untuk soal PG, logika, dan analisis ketat.</li>
+                    <li><strong>⚡ Cepat:</strong> Sudah menggunakan model baru (Anti-Error).</li>
+                    <li><strong>🛡️ Ujian:</strong> Sudah kembali pintar (Ada Confidence Score & Eliminasi).</li>
                 </ul>
-                <p>Silakan pilih mode dan mulai bertanya!</p>
+                <p>Silakan pilih mode di pojok kanan atas.</p>
             </div>
         </div>
     </div>
 
     <div class="input-container">
         <form class="input-box" onsubmit="sendMessage(event)">
-            <input type="text" id="user-input" placeholder="Ketik sesuatu..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Ketik pesan..." autocomplete="off">
             <button type="submit" id="send-btn">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
@@ -164,50 +146,65 @@
         // --- API KEY ---
         const MY_API_KEY = "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"; 
 
-        // --- KONFIGURASI MODE ---
+        // --- KONFIGURASI MODE (SUDAH DIPERBAIKI) ---
         const MODES = {
             fast: {
                 name: "Cepat (Flash)",
-                model: "llama3-8b-8192", // Model kecil, ngebut
+                // PERBAIKAN 1: Ganti model lama yang mati dengan Llama-3.1-Instant
+                model: "llama-3.1-8b-instant", 
                 temp: 0.8,
-                prompt: "Kamu adalah asisten AI yang ramah, seru, dan menjawab dengan cepat. Gunakan bahasa gaul tapi sopan jika perlu."
+                prompt: "Kamu adalah asisten AI yang ramah, seru, dan menjawab dengan cepat. Gunakan bahasa Indonesia yang santai."
             },
             pro: {
                 name: "Pro (Versatile)",
-                model: "llama-3.3-70b-versatile", // Model pintar standar
+                model: "llama-3.3-70b-versatile",
                 temp: 0.6,
                 prompt: "Kamu adalah asisten profesional (Evan AI). Jawab dengan format Markdown yang rapi, terstruktur, dan detail. Prioritaskan kejelasan dan akurasi."
             },
             exam: {
                 name: "Ujian (Reasoning)",
-                model: "llama-3.3-70b-versatile", // Model pintar + Aturan ketat
-                temp: 0.1, // Temperatur rendah = Sangat Logis
-                prompt: "MODE UJIAN: Kamu adalah auditor logika. 1. Deteksi kata jebakan (KECUALI, BUKAN). 2. Gunakan eliminasi opsi. 3. Berikan jawaban final dengan tingkat keyakinan (Confidence Score). JANGAN HALUSINASI."
+                model: "llama-3.3-70b-versatile",
+                temp: 0.1, // Temperatur rendah = Logika Keras
+                // PERBAIKAN 2: Mengembalikan Prompt Detektif yang lengkap
+                prompt: `Kamu adalah Asisten Ujian Profesional. Tugasmu adalah memastikan pengguna LULUS dengan nilai terbaik.
+
+INSTRUKSI KHUSUS:
+1. Analisis Kata Kunci: Cek kata jebakan seperti "KECUALI", "BUKAN", "YANG SALAH".
+2. Metode Eliminasi: Jangan langsung pilih jawaban. Analisis dulu kenapa pilihan lain salah.
+3. Tingkat Keyakinan: Berikan persentase keyakinan (0-100%) di akhir.
+
+FORMAT OUTPUT WAJIB (Gunakan Markdown):
+**JAWABAN: [Huruf]**
+
+**Alasan Utama:**
+[Jelaskan kenapa jawaban ini benar]
+
+**Kenapa yang lain salah?**
+* [Huruf Salah]: [Alasan singkat kenapa salah]
+* [Huruf Salah]: [Alasan singkat kenapa salah]
+
+**(Tingkat Keyakinan: XX%)**`
             }
         };
 
-        // Default Mode
+        // Variables
         let currentMode = 'pro'; 
-
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
         const modeSelect = document.getElementById('mode-select');
         const toast = document.getElementById('toast');
 
-        // Setup Markdown
+        // Markdown Setup
         marked.setOptions({
             highlight: (code, lang) => highlight.getLanguage(lang) ? highlight.highlight(code, { language: lang }).value : highlight.highlightAuto(code).value,
             breaks: true
         });
 
-        // Ganti Mode
+        // Change Mode Function
         function changeMode() {
             currentMode = modeSelect.value;
             showToast(`Mode diubah ke ${MODES[currentMode].name}`);
-            
-            // Opsional: Beri tahu di chat (supaya user sadar)
-            // appendMessage(`🔄 *System: Beralih ke mode ${MODES[currentMode].name}*`, 'assistant');
         }
 
         function showToast(msg) {
@@ -216,6 +213,7 @@
             setTimeout(() => { toast.style.opacity = '0'; }, 2000);
         }
 
+        // Send Message Function
         async function sendMessage(e) {
             e.preventDefault();
             const text = userInput.value.trim();
@@ -227,7 +225,6 @@
             appendMessage(text, 'user');
             const loadingId = showLoading();
 
-            // Ambil settingan berdasarkan Mode yang dipilih
             const selectedConfig = MODES[currentMode];
 
             try {
@@ -248,8 +245,11 @@
                 const data = await response.json();
                 removeLoading(loadingId);
 
-                if (data.error) appendMessage("⚠️ Error: " + data.error.message, 'assistant');
-                else appendMessage(data.choices[0].message.content, 'assistant');
+                if (data.error) {
+                    appendMessage("⚠️ Error: " + data.error.message, 'assistant');
+                } else {
+                    appendMessage(data.choices[0].message.content, 'assistant');
+                }
 
             } catch (err) {
                 removeLoading(loadingId);
