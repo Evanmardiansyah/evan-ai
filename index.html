@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep Thinker AI</title>
+    <title>Deep Thinker AI v2</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
         /* Styling Dark Mode & Layout */
@@ -66,14 +66,14 @@
 
     <nav>
         <ul>
-            <li><strong>Deep Thinker AI</strong> <small style="color:#666; margin-left:10px;">(Powered by Groq Llama-3 70B)</small></li>
+            <li><strong>Deep Thinker AI</strong> <small style="color:#666; margin-left:10px;">(Llama 3.3 70B)</small></li>
         </ul>
     </nav>
 
     <main id="main-interface">
         <div id="chat-container">
             <div class="message assistant">
-                Sistem siap. Mode analisis kritis diaktifkan. Silakan berikan topik atau permasalahan untuk kita bedah secara mendalam.
+                Sistem diperbarui (Llama 3.3). Silakan berikan topik atau permasalahan untuk kita bedah secara mendalam.
             </div>
         </div>
 
@@ -87,6 +87,7 @@
 
     <script>
         // --- KONFIGURASI API ---
+        // API KEY Anda sudah terpasang di sini
         const MY_API_KEY = "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"; 
         // -----------------------
 
@@ -142,8 +143,8 @@ Saat siap, jawab setiap pertanyaan atau tugas dengan cara paling cerdas, logis, 
                             { role: "system", content: SYSTEM_PROMPT },
                             { role: "user", content: userText }
                         ],
-                        // Menggunakan model besar (70B) untuk logika yang lebih baik
-                        model: "llama3-70b-8192", 
+                        // UPDATE: Menggunakan model Llama 3.3 yang baru
+                        model: "llama-3.3-70b-versatile", 
                         temperature: 0.6, 
                         max_tokens: 4096 
                     })
