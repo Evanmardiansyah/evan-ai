@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Evan AI (Gemini Pro)</title>
+    <title>Evan AI (Smart Logic)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -11,7 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
     <style>
-        /* --- VARIABLE TEMA GEMINI --- */
         :root {
             --bg-color: #131314;       
             --input-bg: #1e1f20;
@@ -30,170 +29,106 @@
             color: var(--text-primary); 
             display: flex; 
             flex-direction: column; 
-            overflow: hidden; /* Mencegah scroll body ganda */
+            overflow: hidden; 
         }
 
-        /* --- HEADER --- */
+        /* HEADER */
         header { 
             padding: 15px 25px; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            background: var(--bg-color); 
-            z-index: 10;
+            display: flex; align-items: center; gap: 12px; 
+            background: var(--bg-color); z-index: 10;
         }
         .brand { 
-            font-size: 1.4rem; 
-            font-weight: 500; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            color: var(--text-secondary);
+            font-size: 1.4rem; font-weight: 500; display: flex; align-items: center; gap: 10px; color: var(--text-secondary);
         }
         .brand span { color: #fff; font-weight: 500; }
 
-        /* --- CHAT CONTAINER --- */
+        /* CHAT CONTAINER */
         #chat-container { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 20px 20px 120px 20px; /* Padding bawah besar agar tidak tertutup input */
-            display: flex; 
-            flex-direction: column; 
-            gap: 25px; 
+            flex: 1; overflow-y: auto; 
+            padding: 20px 20px 120px 20px; 
+            display: flex; flex-direction: column; gap: 25px; 
             scroll-behavior: smooth;
         }
-        
-        /* Custom Scrollbar */
         #chat-container::-webkit-scrollbar { width: 8px; }
         #chat-container::-webkit-scrollbar-track { background: transparent; }
         #chat-container::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
 
-        /* --- MESSAGE BUBBLES --- */
+        /* MESSAGES */
         .message-wrapper { 
-            display: flex; 
-            gap: 16px; 
-            opacity: 0; 
-            animation: fadeUp 0.3s forwards; 
-            line-height: 1.6; 
-            max-width: 900px;
-            margin: 0 auto; /* Center layout di layar lebar */
-            width: 100%;
+            display: flex; gap: 16px; 
+            opacity: 0; animation: fadeUp 0.3s forwards; 
+            line-height: 1.6; max-width: 900px; margin: 0 auto; width: 100%;
         }
-        
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Avatar Icon */
         .avatar { 
-            width: 30px; height: 30px; 
-            flex-shrink: 0; 
-            border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
+            width: 30px; height: 30px; flex-shrink: 0; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
             margin-top: 2px;
         }
-        .avatar svg { width: 24px; height: 24px; }
 
-        /* USER STYLE (Kanan) */
+        /* USER STYLE */
         .message-wrapper.user { flex-direction: row-reverse; }
-        .message-wrapper.user .avatar { display: none; } /* User tidak perlu avatar */
+        .message-wrapper.user .avatar { display: none; }
         .message-wrapper.user .message-content {
             background-color: var(--user-bubble); 
-            padding: 12px 20px; 
-            border-radius: 20px; 
-            border-top-right-radius: 5px; 
-            max-width: 80%;
-            word-wrap: break-word;
+            padding: 12px 20px; border-radius: 20px; border-top-right-radius: 5px; 
+            max-width: 80%; word-wrap: break-word;
         }
 
-        /* ASSISTANT STYLE (Kiri) */
+        /* ASSISTANT STYLE */
         .message-wrapper.assistant .message-content { 
-            background: transparent; 
-            width: 100%; 
-            padding-top: 0;
-            color: var(--text-primary);
+            background: transparent; width: 100%; padding-top: 0; color: var(--text-primary);
         }
 
-        /* MARKDOWN STYLES */
+        /* FORMATTING */
         .assistant strong { color: #fff; font-weight: 700; }
         .assistant p { margin-top: 0; margin-bottom: 15px; }
-        .assistant ul, .assistant ol { margin-left: 20px; margin-bottom: 15px; }
-        .assistant li { margin-bottom: 5px; }
-        
-        /* Code Blocks */
         .assistant pre { 
-            background: #1e1f20; 
-            border-radius: 12px; 
-            padding: 15px; 
-            overflow-x: auto; 
-            border: 1px solid #333; 
-            margin: 15px 0; 
+            background: #1e1f20; border-radius: 12px; padding: 15px; 
+            overflow-x: auto; border: 1px solid #333; margin: 15px 0; 
         }
         .assistant code { font-family: 'Consolas', monospace; font-size: 0.9em; }
 
-        /* --- INPUT AREA (Fixed Bottom) --- */
+        /* INPUT AREA */
         .input-container { 
-            position: fixed; 
-            bottom: 0; left: 0; right: 0; 
-            background: var(--bg-color); 
-            padding: 20px; 
-            display: flex; 
-            justify-content: center; 
-            z-index: 100;
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: var(--bg-color); padding: 20px; 
+            display: flex; justify-content: center; z-index: 100;
         }
-
         .input-box { 
-            background-color: var(--input-bg); 
-            width: 100%; 
-            max-width: 800px; 
-            border-radius: 30px; 
-            padding: 8px 15px 8px 25px; 
-            display: flex; 
-            align-items: center; 
-            border: 1px solid transparent; 
+            background-color: var(--input-bg); width: 100%; max-width: 800px; 
+            border-radius: 30px; padding: 8px 15px 8px 25px; 
+            display: flex; align-items: center; border: 1px solid transparent; 
             transition: 0.3s; 
         }
-
-        .input-box:focus-within { background-color: #28292a; }
-
+        .input-box:focus-within { background-color: #28292a; border-color: #555; }
         #user-input { 
-            flex: 1; 
-            background: transparent; 
-            border: none; 
-            color: white; 
-            font-size: 1rem; 
-            padding: 12px 0; 
-            font-family: inherit; 
+            flex: 1; background: transparent; border: none; 
+            color: white; font-size: 1rem; padding: 12px 0; font-family: inherit; 
         }
-
         #send-btn { 
-            background: #fff; 
-            color: #000; 
-            border: none; 
-            width: 40px; height: 40px; 
-            border-radius: 50%; 
-            cursor: pointer; 
+            background: #fff; color: #000; border: none; 
+            width: 40px; height: 40px; border-radius: 50%; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; 
-            transition: 0.2s; 
-            margin-left: 10px;
+            transition: 0.2s; margin-left: 10px;
         }
-        #send-btn:hover { transform: scale(1.05); }
         #send-btn:disabled { background: #444; cursor: not-allowed; }
 
-        /* Utility: Loading & Copy */
+        /* Toolbar & Loading */
         .msg-toolbar { display: flex; gap: 10px; margin-top: 5px; }
         .icon-btn { 
             background: transparent; border: none; color: #666; 
             cursor: pointer; padding: 5px; border-radius: 5px; 
-            display: flex; align-items: center;
         }
         .icon-btn:hover { background: #333; color: #ccc; }
-        
         .typing span { 
             display: inline-block; width: 6px; height: 6px; 
             background: #ccc; border-radius: 50%; 
             animation: blink 1.4s infinite both; margin: 0 2px; 
         }
         @keyframes blink { 50% { opacity: 0.2; } }
-
     </style>
 </head>
 <body>
@@ -216,23 +151,19 @@
     <div id="chat-container">
         <div class="message-wrapper assistant">
             <div class="avatar">
-                <svg width="24" height="24" viewBox="0 0 24 24">
-                    <path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/>
-                </svg>
+                <svg width="24" height="24" viewBox="0 0 24 24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>
             </div>
             <div class="message-content">
-                <p>Halo! Tampilan sudah diperbaiki dan dirapikan. Saya siap membantu tugas Anda dengan cepat (A/B/C/D) atau analisis mendalam.</p>
+                <p>Sistem Logika diperbarui. Sekarang saya lebih teliti dalam menjawab soal Pilihan Ganda (termasuk soal jebakan "KECUALI"). Silakan tes!</p>
             </div>
         </div>
     </div>
 
     <div class="input-container">
         <form class="input-box" onsubmit="sendMessage(event)">
-            <input type="text" id="user-input" placeholder="Tanya sesuatu..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Ketik pertanyaan atau soal..." autocomplete="off">
             <button type="submit" id="send-btn">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                </svg>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
         </form>
     </div>
@@ -241,21 +172,28 @@
         // --- KONFIGURASI API ---
         const MY_API_KEY = "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"; 
 
-        // --- OTAK PINTAR & NURUT ---
+        // --- OTAK BARU: LOGIKA KETAT ---
         const SYSTEM_PROMPT = `
-Kamu adalah Evan AI.
-ATURAN WAJIB:
-1. JIKA user meminta format jawaban singkat/pilihan ganda (A/B/C/D), JAWAB LANGSUNG sesuai format itu tanpa basa-basi.
-2. JIKA pertanyaan terbuka/diskusi, berikan analisis mendalam dan terstruktur.
-3. Gunakan Bahasa Indonesia yang baik.
-4. Gunakan Markdown untuk format teks.
+Kamu adalah Evan AI, asisten yang SANGAT TELITI dan LOGIS.
+
+PROSEDUR MENJAWAB SOAL PILIHAN GANDA (PG):
+1. BACA soal dengan teliti. Perhatikan kata kunci negatif seperti "KECUALI", "BUKAN", "SELAIN".
+2. Analisis setiap pilihan (A, B, C, D, E) satu per satu. Bandingkan mana yang benar dan mana yang salah.
+3. Tentukan jawaban final DULU dalam pikiranmu, baru mulai menulis.
+4. JANGAN PERNAH memberikan jawaban yang kontradiktif (misal: di awal bilang A, tapi penjelasannya membela B).
+5. FORMAT JAWABAN:
+   - Baris 1: [HURUF PILIHAN]. [TEKS JAWABAN] (Cetak Tebal)
+   - Baris 2: Penjelasan singkat mengapa itu benar.
+
+Contoh yang benar:
+**D. Front end developer dan technical engineering**
+Technical engineering lebih ke arah teknik/hardware dan bukan spesialisasi murni pengembangan web (software), sehingga ini adalah pengecualian yang tepat.
         `;
 
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
 
-        // Setup Markdown Renderer
         marked.setOptions({
             highlight: (code, lang) => highlight.getLanguage(lang) ? highlight.highlight(code, { language: lang }).value : highlight.highlightAuto(code).value,
             breaks: true
@@ -266,31 +204,23 @@ ATURAN WAJIB:
             const text = userInput.value.trim();
             if (!text) return;
 
-            // UI Sending State
             userInput.value = '';
             userInput.disabled = true;
             sendBtn.disabled = true;
-
-            // Tampilkan Pesan User
             appendMessage(text, 'user');
-
-            // Tampilkan Loading
             const loadingId = showLoading();
 
             try {
                 const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${MY_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Authorization': `Bearer ${MY_API_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         messages: [
                             { role: "system", content: SYSTEM_PROMPT },
                             { role: "user", content: text }
                         ],
                         model: "llama-3.3-70b-versatile",
-                        temperature: 0.5,
+                        temperature: 0.2, // SANGAT PENTING: Rendah = Lebih Logis/Konsisten
                         max_tokens: 4096
                     })
                 });
@@ -298,11 +228,8 @@ ATURAN WAJIB:
                 const data = await response.json();
                 removeLoading(loadingId);
 
-                if (data.error) {
-                    appendMessage("⚠️ Error: " + data.error.message, 'assistant');
-                } else {
-                    appendMessage(data.choices[0].message.content, 'assistant');
-                }
+                if (data.error) appendMessage("⚠️ Error: " + data.error.message, 'assistant');
+                else appendMessage(data.choices[0].message.content, 'assistant');
 
             } catch (err) {
                 removeLoading(loadingId);
@@ -319,15 +246,11 @@ ATURAN WAJIB:
             wrapper.className = `message-wrapper ${role}`;
 
             if (role === 'assistant') {
-                // Gunakan SVG langsung di sini juga agar konsisten
                 const iconSVG = `<svg width="24" height="24" viewBox="0 0 24 24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`;
-                
-                const contentHtml = marked.parse(text);
-                
                 wrapper.innerHTML = `
                     <div class="avatar">${iconSVG}</div>
                     <div class="message-content">
-                        ${contentHtml}
+                        ${marked.parse(text)}
                         <div class="msg-toolbar">
                             <button class="icon-btn" onclick="copyText(this)" title="Salin">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -336,12 +259,10 @@ ATURAN WAJIB:
                     </div>
                 `;
             } else {
-                // User message (Plain text)
                 wrapper.innerHTML = `<div class="message-content">${text}</div>`;
             }
-
             chatContainer.appendChild(wrapper);
-            scrollToBottom();
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
 
         function showLoading() {
@@ -349,34 +270,15 @@ ATURAN WAJIB:
             const wrapper = document.createElement('div');
             wrapper.id = id;
             wrapper.className = 'message-wrapper assistant';
-            const iconSVG = `<svg width="24" height="24" viewBox="0 0 24 24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`;
-            
-            wrapper.innerHTML = `
-                <div class="avatar">${iconSVG}</div>
-                <div class="message-content typing">
-                    <span></span><span></span><span></span>
-                </div>
-            `;
+            wrapper.innerHTML = `<div class="avatar"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div><div class="message-content typing"><span></span><span></span><span></span></div>`;
             chatContainer.appendChild(wrapper);
-            scrollToBottom();
+            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
             return id;
         }
-
-        function removeLoading(id) {
-            const el = document.getElementById(id);
-            if (el) el.remove();
-        }
-
-        function scrollToBottom() {
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-        }
-
+        function removeLoading(id) { document.getElementById(id)?.remove(); }
         function copyText(btn) {
-            // Cari elemen teks di atas tombol ini
             const text = btn.closest('.message-content').innerText.replace('Salin', '').trim();
             navigator.clipboard.writeText(text);
-            
-            // Efek visual tombol
             const originalHTML = btn.innerHTML;
             btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#4caf50"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
             setTimeout(() => btn.innerHTML = originalHTML, 2000);
