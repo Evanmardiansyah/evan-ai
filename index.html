@@ -120,6 +120,11 @@
             max-width: 85%; font-size: 0.95rem; line-height: 1.6;
         }
 
+        /* Styling gambar di dalam chat bubble */
+        .chat-image {
+            max-width: 100%; border-radius: 8px; margin-bottom: 8px; display: block; border: 1px solid var(--border-color);
+        }
+
         .message-wrapper.assistant .message-content { 
             background: transparent; width: 100%; color: var(--text-primary);
             font-size: 0.95rem; line-height: 1.75; min-width: 0;
@@ -130,7 +135,7 @@
 
         /* TYPOGRAPHY */
         .assistant h1 { 
-            font-size: 1.25rem; font-weight: 700; color: var(--conf-high); /* Hijau Default */
+            font-size: 1.25rem; font-weight: 700; color: var(--conf-high); 
             margin-top: 5px; margin-bottom: 15px; display: inline-block;
             border-bottom: 2px solid var(--conf-high); padding-bottom: 2px;
         }
@@ -155,8 +160,22 @@
             background: var(--input-area-bg); 
             padding: 15px 15px; 
             padding-bottom: max(15px, env(safe-area-inset-bottom));
-            display: flex; justify-content: center; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; z-index: 100;
         }
+        
+        /* Preview Gambar */
+        #image-preview-container {
+            display: none; position: relative; width: 100%; max-width: 800px;
+            background: var(--input-bg); margin-bottom: 8px; border-radius: 12px;
+            padding: 8px; border: 1px solid var(--border-color);
+        }
+        #image-preview { height: 80px; border-radius: 8px; display: block; }
+        #remove-image-btn {
+            position: absolute; top: -5px; right: -5px; background: #ef5350; color: white;
+            border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
         .input-box { 
             background: var(--input-bg); width: 100%; max-width: 800px; 
             border-radius: 26px; padding: 8px 12px 8px 20px; 
@@ -169,21 +188,20 @@
             flex: 1; background: transparent; border: none; color: var(--text-primary); 
             font-size: 1rem; padding: 12px 0; font-family: inherit; 
             resize: none; 
-            
-            /* --- FIX SCROLL MOUSE --- */
-            overflow-y: auto; 
-            max-height: 200px; 
-            min-height: 24px; 
-            line-height: 1.5;
+            overflow-y: auto; max-height: 200px; min-height: 24px; line-height: 1.5;
         }
         #user-input::-webkit-scrollbar { width: 4px; }
         #user-input::-webkit-scrollbar-thumb { background-color: var(--text-secondary); border-radius: 4px; opacity: 0.5; }
 
-        #send-btn { 
-            background: var(--text-primary); color: var(--bg-color); border: none; 
+        #send-btn, #attach-btn { 
+            background: transparent; color: var(--text-secondary); border: none; 
             width: 36px; height: 36px; border-radius: 50%; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; margin-left: 8px; margin-bottom: 4px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            margin-bottom: 4px;
         }
+        #send-btn { background: var(--text-primary); color: var(--bg-color); margin-left: 8px; }
+        #attach-btn { margin-right: 4px; }
+        #attach-btn:hover { color: var(--text-primary); background: var(--hover-bg); }
 
         /* Utilities */
         .msg-toolbar { display: flex; gap: 8px; margin-top: 5px; opacity: 0.6; }
@@ -222,10 +240,10 @@
         <div class="message-wrapper assistant">
             <div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div>
             <div class="message-content">
-                <p>Halo! Sistem <strong>Memory Context</strong> sudah aktif.</p>
+                <p>Halo! Sistem <strong>Memory Context</strong> & <strong>Vision (Mata)</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Pro & Cepat</strong>: Bisa mengingat percakapan sebelumnya.</li>
-                    <li><strong style="color:var(--conf-low)">Ujian</strong>: Fokus per soal (tidak ingat masa lalu).</li>
+                    <li><strong style="color:var(--conf-high)">Fitur Baru 📷</strong>: Klik ikon klip untuk upload foto soal.</li>
+                    <li><strong style="color:var(--conf-med)">Ujian</strong>: Foto soal -> AI langsung jawab.</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
             </div>
@@ -233,8 +251,20 @@
     </div>
 
     <div class="input-container">
+        <div id="image-preview-container">
+            <img id="image-preview" src="" alt="Preview">
+            <button id="remove-image-btn" onclick="removeImage()">×</button>
+        </div>
+
         <div class="input-box">
+            <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageSelect()">
+            
+            <button id="attach-btn" onclick="document.getElementById('image-input').click()">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+            </button>
+
             <textarea id="user-input" placeholder="Ketik pesan..." rows="1"></textarea>
+            
             <button id="send-btn" onclick="triggerSend()">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
@@ -243,14 +273,11 @@
 
     <script>
         // --- KEAMANAN TINGKAT LANJUT (Anti-Bot GitHub) ---
-        // Ini adalah API Key baru Agan yang sudah dibalik.
         const REVERSED_KEY = "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg";
-        
-        // Fungsi untuk mengembalikan key jadi normal secara otomatis saat dijalankan
         const MY_API_KEY = REVERSED_KEY.split('').reverse().join('');
         
-        // --- VARIABEL UNTUK MENYIMPAN RIWAYAT CHAT (HISTORY) ---
         let chatHistory = []; 
+        let currentImageBase64 = null; // Variable untuk menyimpan gambar sementara
 
         const MODES = {
             fast: { 
@@ -282,16 +309,39 @@ ATURAN WAJIB:
         const modeSelect = document.getElementById('mode-select');
         const htmlTag = document.documentElement;
         const themeIcon = document.getElementById('theme-icon');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
 
         function changeMode() {
             currentMode = modeSelect.value;
-            chatHistory = []; // Reset memori
+            chatHistory = []; 
             const config = MODES[currentMode];
             const sysDiv = document.createElement('div');
             sysDiv.className = 'system-notification';
             sysDiv.innerHTML = `Mode diubah ke <span>${config.name}</span> • Memori di-reset`;
             chatContainer.appendChild(sysDiv);
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+        }
+
+        // --- FUNGSI IMAGE HANDLING ---
+        function handleImageSelect() {
+            const file = document.getElementById('image-input').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImageBase64 = e.target.result; // Simpan Base64
+                    imagePreview.src = currentImageBase64; // Tampilkan preview
+                    imagePreviewContainer.style.display = 'block'; // Munculkan container
+                    userInput.focus();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            currentImageBase64 = null;
+            document.getElementById('image-input').value = ""; // Reset input file
+            imagePreviewContainer.style.display = 'none';
         }
 
         userInput.addEventListener('input', function() {
@@ -332,29 +382,60 @@ ATURAN WAJIB:
 
         async function sendMessage(e) {
             if(e) e.preventDefault();
+            
             const text = userInput.value.trim();
-            if (!text) return;
+            // Cek: harus ada text ATAU gambar. Kalau dua-duanya kosong, jangan kirim.
+            if (!text && !currentImageBase64) return;
             
             userInput.value = ''; userInput.style.height = 'auto';
             userInput.disabled = true; sendBtn.disabled = true;
-            appendMessage(text, 'user');
             
+            // Tampilkan pesan user (Text + Gambar jika ada)
+            appendMessage(text, 'user', currentImageBase64);
+            
+            // Simpan referensi gambar untuk dikirim, lalu reset di UI
+            const imageToSend = currentImageBase64;
+            removeImage(); // Bersihkan preview setelah kirim
+
             const loadingId = showLoading();
             const selectedConfig = MODES[currentMode];
             
             let messagesPayload = [];
-            if (currentMode === 'exam') {
+            let modelToUse = selectedConfig.model; // Default model sesuai mode
+
+            // --- LOGIKA VISION (MATA AI) ---
+            if (imageToSend) {
+                // Jika ada gambar, KITA PAKSA GANTI MODEL ke Vision Preview
+                // Tapi Prompt/Instruksi tetap ikut Mode (Ujian/Pro)
+                modelToUse = "llama-3.2-90b-vision-preview";
+                
+                // Struktur payload khusus Vision
+                const userContent = [
+                    { type: "text", text: text || "Jelaskan gambar ini" }, // Jika text kosong, kasih default
+                    { type: "image_url", image_url: { url: imageToSend } }
+                ];
+
+                // Vision biasanya stateless (sekali tanya) biar aman token
                 messagesPayload = [
                     { role: "system", content: selectedConfig.prompt },
-                    { role: "user", content: text }
+                    { role: "user", content: userContent }
                 ];
-            } else {
-                chatHistory.push({ role: "user", content: text });
-                if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
-                messagesPayload = [
-                    { role: "system", content: selectedConfig.prompt },
-                    ...chatHistory
-                ];
+            } 
+            else {
+                // --- LOGIKA TEXT BIASA (SAMA SEPERTI SEBELUMNYA) ---
+                if (currentMode === 'exam') {
+                    messagesPayload = [
+                        { role: "system", content: selectedConfig.prompt },
+                        { role: "user", content: text }
+                    ];
+                } else {
+                    chatHistory.push({ role: "user", content: text });
+                    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+                    messagesPayload = [
+                        { role: "system", content: selectedConfig.prompt },
+                        ...chatHistory
+                    ];
+                }
             }
 
             try {
@@ -363,7 +444,7 @@ ATURAN WAJIB:
                     headers: { 'Authorization': `Bearer ${MY_API_KEY}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         messages: messagesPayload,
-                        model: selectedConfig.model, 
+                        model: modelToUse, // Gunakan model vision jika ada gambar
                         temperature: selectedConfig.temp, 
                         max_tokens: 4096
                     })
@@ -377,14 +458,16 @@ ATURAN WAJIB:
                 } else {
                     const aiReply = data.choices[0].message.content;
                     appendMessage(aiReply, 'assistant');
-                    if (currentMode !== 'exam') {
+                    
+                    // Simpan ke history HANYA jika bukan mode ujian DAN bukan vision (biar hemat memori)
+                    if (currentMode !== 'exam' && !imageToSend) {
                         chatHistory.push({ role: "assistant", content: aiReply });
                     }
                 }
 
             } catch (err) {
                 removeLoading(loadingId);
-                appendMessage("Gagal koneksi.", 'assistant');
+                appendMessage("Gagal koneksi atau gambar terlalu besar.", 'assistant');
             } finally {
                 userInput.disabled = false; sendBtn.disabled = false; userInput.focus();
             }
@@ -400,16 +483,32 @@ ATURAN WAJIB:
             });
         }
 
-        function appendMessage(text, role) {
+        // Update fungsi appendMessage untuk support gambar di bubble chat user
+        function appendMessage(text, role, imageUrl = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `message-wrapper ${role}`;
+            
+            let innerContent = "";
+            
+            // Jika ada gambar, tambahkan tag <img>
+            if (imageUrl) {
+                innerContent += `<img src="${imageUrl}" class="chat-image">`;
+            }
+            
             if (role === 'assistant') {
                 const iconSVG = `<svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`;
-                let contentHtml = marked.parse(text);
+                let contentHtml = marked.parse(text || "");
                 contentHtml = styleConfidence(contentHtml);
-                wrapper.innerHTML = `<div class="avatar">${iconSVG}</div><div class="message-content">${contentHtml}<div class="msg-toolbar"><button class="icon-btn" onclick="copyText(this)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button></div></div>`;
+                innerContent += contentHtml;
+                
+                wrapper.innerHTML = `<div class="avatar">${iconSVG}</div><div class="message-content">${innerContent}<div class="msg-toolbar"><button class="icon-btn" onclick="copyText(this)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button></div></div>`;
             } else {
-                wrapper.innerHTML = `<div class="message-content">${text}</div>`;
+                // User Bubble
+                // Jika text ada, tampilkan. Jika kosong (cuma kirim gambar), jangan tampilkan teks kosong.
+                if (text) {
+                    innerContent += `<div>${text.replace(/\n/g, '<br>')}</div>`;
+                }
+                wrapper.innerHTML = `<div class="message-content">${innerContent}</div>`;
             }
             chatContainer.appendChild(wrapper);
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
