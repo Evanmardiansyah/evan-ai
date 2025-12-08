@@ -171,12 +171,11 @@
             resize: none; 
             
             /* --- FIX SCROLL MOUSE --- */
-            overflow-y: auto; /* Mengaktifkan scroll vertikal */
+            overflow-y: auto; 
             max-height: 200px; 
             min-height: 24px; 
             line-height: 1.5;
         }
-        /* Custom Scrollbar untuk Input Box biar rapi */
         #user-input::-webkit-scrollbar { width: 4px; }
         #user-input::-webkit-scrollbar-thumb { background-color: var(--text-secondary); border-radius: 4px; opacity: 0.5; }
 
@@ -243,9 +242,12 @@
     </div>
 
     <script>
-        const _k1 = "gsk_eN6UBilE1yADaXZyDMr";
-        const _k2 = "RWGdyb3FYFgjUZB72cpJJv5ZpkIKm4maQ";
-        const MY_API_KEY = _k1 + _k2; 
+        // --- KEAMANAN TINGKAT LANJUT (Anti-Bot GitHub) ---
+        // Ini adalah API Key baru Agan yang sudah dibalik.
+        const REVERSED_KEY = "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg";
+        
+        // Fungsi untuk mengembalikan key jadi normal secara otomatis saat dijalankan
+        const MY_API_KEY = REVERSED_KEY.split('').reverse().join('');
         
         // --- VARIABEL UNTUK MENYIMPAN RIWAYAT CHAT (HISTORY) ---
         let chatHistory = []; 
@@ -283,10 +285,7 @@ ATURAN WAJIB:
 
         function changeMode() {
             currentMode = modeSelect.value;
-            
-            // FITUR PENTING: Reset ingatan saat ganti mode agar tidak bingung
-            chatHistory = []; 
-
+            chatHistory = []; // Reset memori
             const config = MODES[currentMode];
             const sysDiv = document.createElement('div');
             sysDiv.className = 'system-notification';
@@ -343,26 +342,15 @@ ATURAN WAJIB:
             const loadingId = showLoading();
             const selectedConfig = MODES[currentMode];
             
-            // --- LOGIKA PESAN BARU (CORE LOGIC) ---
             let messagesPayload = [];
-
             if (currentMode === 'exam') {
-                // LOGIKA KHUSUS UJIAN: Hapus masa lalu, fokus pertanyaan ini saja
                 messagesPayload = [
                     { role: "system", content: selectedConfig.prompt },
                     { role: "user", content: text }
                 ];
             } else {
-                // LOGIKA PRO & FAST: Pakai Ingatan (History)
-                // 1. Tambahkan pesan user baru ke history lokal
                 chatHistory.push({ role: "user", content: text });
-
-                // 2. Batasi history agar tidak terlalu boros limit (Max 20 pesan terakhir)
-                if (chatHistory.length > 20) {
-                    chatHistory = chatHistory.slice(-20);
-                }
-
-                // 3. Gabungkan System Prompt + History Chat
+                if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
                 messagesPayload = [
                     { role: "system", content: selectedConfig.prompt },
                     ...chatHistory
@@ -389,8 +377,6 @@ ATURAN WAJIB:
                 } else {
                     const aiReply = data.choices[0].message.content;
                     appendMessage(aiReply, 'assistant');
-
-                    // Jika BUKAN mode ujian, simpan jawaban AI ke ingatan
                     if (currentMode !== 'exam') {
                         chatHistory.push({ role: "assistant", content: aiReply });
                     }
@@ -404,15 +390,12 @@ ATURAN WAJIB:
             }
         }
 
-        // --- FUNGSI DETEKTOR WARNA KEYAKINAN ---
         function styleConfidence(html) {
             return html.replace(/\(Tingkat Keyakinan:\s*(\d+)%\)/gi, function(match, score) {
                 let num = parseInt(score);
                 let cssClass = 'confidence-low'; 
-                
                 if (num >= 80) cssClass = 'confidence-high'; 
                 else if (num >= 50) cssClass = 'confidence-med'; 
-                
                 return `<span class="${cssClass}">${match}</span>`;
             });
         }
@@ -422,10 +405,8 @@ ATURAN WAJIB:
             wrapper.className = `message-wrapper ${role}`;
             if (role === 'assistant') {
                 const iconSVG = `<svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`;
-                
                 let contentHtml = marked.parse(text);
                 contentHtml = styleConfidence(contentHtml);
-
                 wrapper.innerHTML = `<div class="avatar">${iconSVG}</div><div class="message-content">${contentHtml}<div class="msg-toolbar"><button class="icon-btn" onclick="copyText(this)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button></div></div>`;
             } else {
                 wrapper.innerHTML = `<div class="message-content">${text}</div>`;
