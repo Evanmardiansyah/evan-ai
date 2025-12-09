@@ -132,6 +132,12 @@
         
         .message-content { word-wrap: break-word; word-break: break-word; }
 
+        /* MODEL BADGE (NEW) */
+        .model-badge {
+            font-size: 0.7rem; color: var(--text-secondary); margin-top: 8px; display: flex; align-items: center; gap: 4px; opacity: 0.7;
+        }
+        .model-badge svg { width: 12px; height: 12px; }
+
         /* TYPOGRAPHY */
         .assistant h1 { 
             font-size: 1.25rem; font-weight: 700; color: var(--conf-high); 
@@ -162,7 +168,6 @@
             display: flex; flex-direction: column; align-items: center; z-index: 100;
         }
         
-        /* --- STYLE GEMINI PREVIEW (CHIP) --- */
         #image-preview-container {
             display: none; width: 100%; max-width: 800px;
             margin-bottom: 10px; text-align: left;
@@ -281,8 +286,8 @@
             <div class="message-content">
                 <p>Halo! Sistem <strong>Memory Context</strong> & <strong>Vision (Mata)</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">PASTE SUPPORT 📷</strong>: Tekan <strong>Ctrl+V</strong> untuk tempel gambar.</li>
-                    <li><strong style="color:var(--conf-med)">Model Baru</strong>: Menggunakan Llama 4 Scout (Versi Stabil).</li>
+                    <li><strong style="color:var(--conf-high)">Cek Fakta 🔍</strong>: Nama model akan muncul di bawah jawaban AI.</li>
+                    <li><strong style="color:var(--conf-med)">Otomatis</strong>: Teks = Llama 3.3 | Gambar = Llama 4 Scout.</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
             </div>
@@ -320,9 +325,7 @@
 
     <script>
         // --- KONFIGURASI MODEL & KEAMANAN ---
-        // MODEL RESMI: Llama 4 Scout (Pengganti Llama 3.2 11B/90B Vision yang sudah mati)
-        const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"; 
-        
+        const VISION_MODEL = "llama-4-scout-17b-16e-instruct"; // Model VISION TERBARU
         const REVERSED_KEY = "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg";
         const MY_API_KEY = REVERSED_KEY.split('').reverse().join('');
         
@@ -362,7 +365,6 @@ ATURAN WAJIB:
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
         
-        // Modal Element
         const modal = document.getElementById('image-modal');
         const modalImg = document.getElementById('expanded-image');
 
@@ -377,17 +379,9 @@ ATURAN WAJIB:
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
 
-        // --- FUNGSI MODAL (ZOOM GAMBAR) ---
-        function showModal(src) {
-            modal.style.display = "flex";
-            modalImg.src = src;
-        }
+        function showModal(src) { modal.style.display = "flex"; modalImg.src = src; }
+        function closeModal() { modal.style.display = "none"; }
 
-        function closeModal() {
-            modal.style.display = "none";
-        }
-
-        // --- FUNGSI IMAGE HANDLING (FILE & PASTE) ---
         function handleImageSelect() {
             const file = document.getElementById('image-input').files[0];
             if (file) processImage(file);
@@ -460,52 +454,35 @@ ATURAN WAJIB:
 
         async function sendMessage(e) {
             if(e) e.preventDefault();
-            
             const text = userInput.value.trim();
             if (!text && !currentImageBase64) return;
             
             userInput.value = ''; userInput.style.height = 'auto';
             userInput.disabled = true; sendBtn.disabled = true;
             
-            // Tampilkan pesan dengan fitur klik gambar
             appendMessage(text, 'user', currentImageBase64);
-            
             const imageToSend = currentImageBase64;
             removeImage(); 
 
             const loadingId = showLoading();
             const selectedConfig = MODES[currentMode];
-            
             let messagesPayload = [];
             let modelToUse = selectedConfig.model; 
 
-            // --- LOGIKA VISION (MATA AI) ---
             if (imageToSend) {
-                modelToUse = VISION_MODEL;
-                
+                modelToUse = VISION_MODEL; // AUTO SWITCH
                 const userContent = [
                     { type: "text", text: text || "Jelaskan gambar ini" }, 
                     { type: "image_url", image_url: { url: imageToSend } }
                 ];
-
-                messagesPayload = [
-                    { role: "system", content: selectedConfig.prompt },
-                    { role: "user", content: userContent }
-                ];
-            } 
-            else {
+                messagesPayload = [{ role: "system", content: selectedConfig.prompt }, { role: "user", content: userContent }];
+            } else {
                 if (currentMode === 'exam') {
-                    messagesPayload = [
-                        { role: "system", content: selectedConfig.prompt },
-                        { role: "user", content: text }
-                    ];
+                    messagesPayload = [{ role: "system", content: selectedConfig.prompt }, { role: "user", content: text }];
                 } else {
                     chatHistory.push({ role: "user", content: text });
                     if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
-                    messagesPayload = [
-                        { role: "system", content: selectedConfig.prompt },
-                        ...chatHistory
-                    ];
+                    messagesPayload = [{ role: "system", content: selectedConfig.prompt }, ...chatHistory];
                 }
             }
 
@@ -528,7 +505,8 @@ ATURAN WAJIB:
                     appendMessage("Error: " + data.error.message, 'assistant');
                 } else {
                     const aiReply = data.choices[0].message.content;
-                    appendMessage(aiReply, 'assistant');
+                    // KIRIM DATA MODEL KE FUNGSI APPENDMESSAGE
+                    appendMessage(aiReply, 'assistant', null, data.model);
                     
                     if (currentMode !== 'exam' && !imageToSend) {
                         chatHistory.push({ role: "assistant", content: aiReply });
@@ -553,16 +531,13 @@ ATURAN WAJIB:
             });
         }
 
-        function appendMessage(text, role, imageUrl = null) {
+        // UPDATE: TAMBAHKAN PARAMETER modelName
+        function appendMessage(text, role, imageUrl = null, modelName = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `message-wrapper ${role}`;
             
             let innerContent = "";
-            
-            if (imageUrl) {
-                // Tambahkan onclick untuk zoom gambar di history chat juga
-                innerContent += `<img src="${imageUrl}" class="chat-image" onclick="showModal(this.src)">`;
-            }
+            if (imageUrl) innerContent += `<img src="${imageUrl}" class="chat-image" onclick="showModal(this.src)">`;
             
             if (role === 'assistant') {
                 const iconSVG = `<svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`;
@@ -570,11 +545,14 @@ ATURAN WAJIB:
                 contentHtml = styleConfidence(contentHtml);
                 innerContent += contentHtml;
                 
+                // TAMPILKAN BADGE MODEL DI BAWAH CHAT
+                if (modelName) {
+                    innerContent += `<div class="model-badge"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> ${modelName}</div>`;
+                }
+
                 wrapper.innerHTML = `<div class="avatar">${iconSVG}</div><div class="message-content">${innerContent}<div class="msg-toolbar"><button class="icon-btn" onclick="copyText(this)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button></div></div>`;
             } else {
-                if (text) {
-                    innerContent += `<div>${text.replace(/\n/g, '<br>')}</div>`;
-                }
+                if (text) innerContent += `<div>${text.replace(/\n/g, '<br>')}</div>`;
                 wrapper.innerHTML = `<div class="message-content">${innerContent}</div>`;
             }
             chatContainer.appendChild(wrapper);
@@ -599,4 +577,3 @@ ATURAN WAJIB:
     </script>
 </body>
 </html>
-
