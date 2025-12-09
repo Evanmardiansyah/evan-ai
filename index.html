@@ -132,10 +132,18 @@
         
         .message-content { word-wrap: break-word; word-break: break-word; }
 
+        /* MODEL BADGE (Fix Tampilan) */
+        .model-badge {
+            font-size: 0.7rem; color: var(--text-secondary); margin-top: 10px; 
+            display: flex; align-items: center; gap: 6px; opacity: 0.7;
+            padding-top: 8px; border-top: 1px solid var(--border-color);
+        }
+        .model-badge svg { width: 12px; height: 12px; fill: currentColor; }
+
         /* TYPOGRAPHY */
         .assistant h1 { 
             font-size: 1.25rem; font-weight: 700; color: var(--conf-high); 
-            margin-top: 15px; margin-bottom: 5px; display: inline-block; /* Margin top dibesarkan biar ada jarak */
+            margin-top: 5px; margin-bottom: 5px; display: inline-block;
             border-bottom: 2px solid var(--conf-high); padding-bottom: 2px;
         }
         .assistant strong { font-weight: 600; color: var(--text-primary); }
@@ -162,7 +170,6 @@
             display: flex; flex-direction: column; align-items: center; z-index: 100;
         }
         
-        /* --- STYLE GEMINI PREVIEW (CHIP) --- */
         #image-preview-container {
             display: none; width: 100%; max-width: 800px;
             margin-bottom: 10px; text-align: left;
@@ -281,8 +288,8 @@
             <div class="message-content">
                 <p>Halo! Sistem <strong>Memory Context</strong> & <strong>Vision (Mata)</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Format Ujian Baru</strong>: Jawaban muncul di <strong>paling bawah</strong>.</li>
-                    <li><strong style="color:var(--conf-med)">Klik Zoom 🔍</strong>: Klik gambar untuk memperbesar.</li>
+                    <li><strong style="color:var(--conf-high)">Fitur Lengkap</strong>: Upload/Paste Gambar, Zoom, & Cek Model.</li>
+                    <li><strong style="color:var(--conf-med)">Model Vision</strong>: meta-llama/llama-4-scout-17b-16e-instruct.</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
             </div>
@@ -342,7 +349,6 @@
             exam: { 
                 name: "Ujian (Reasoning)", desc: "Analisis logika & deteksi jebakan",
                 model: "llama-3.3-70b-versatile", temp: 0.1, 
-                // --- UPDATE PROMPT: JAWABAN DI PALING BAWAH ---
                 prompt: `Kamu adalah Asisten Ujian.
 ATURAN WAJIB:
 1. Mulai dengan "Alasan Utama: [Penjelasan]"
@@ -502,7 +508,8 @@ ATURAN WAJIB:
                     appendMessage("Error: " + data.error.message, 'assistant');
                 } else {
                     const aiReply = data.choices[0].message.content;
-                    appendMessage(aiReply, 'assistant');
+                    // FIX: KEMBALIKAN DATA MODEL KE APPENDMESSAGE
+                    appendMessage(aiReply, 'assistant', null, data.model);
                     
                     if (currentMode !== 'exam' && !imageToSend) {
                         chatHistory.push({ role: "assistant", content: aiReply });
@@ -527,7 +534,8 @@ ATURAN WAJIB:
             });
         }
 
-        function appendMessage(text, role, imageUrl = null) {
+        // UPDATE FUNGSI UTAMA DISPLAY PESAN
+        function appendMessage(text, role, imageUrl = null, modelName = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `message-wrapper ${role}`;
             
@@ -540,6 +548,11 @@ ATURAN WAJIB:
                 contentHtml = styleConfidence(contentHtml);
                 innerContent += contentHtml;
                 
+                // BADGE MODEL DIKEMBALIKAN
+                if (modelName) {
+                    innerContent += `<div class="model-badge"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> ${modelName}</div>`;
+                }
+
                 wrapper.innerHTML = `<div class="avatar">${iconSVG}</div><div class="message-content">${innerContent}<div class="msg-toolbar"><button class="icon-btn" onclick="copyText(this)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button></div></div>`;
             } else {
                 if (text) innerContent += `<div>${text.replace(/\n/g, '<br>')}</div>`;
@@ -567,4 +580,3 @@ ATURAN WAJIB:
     </script>
 </body>
 </html>
-
