@@ -170,7 +170,6 @@
             display: flex; flex-direction: column; align-items: center; z-index: 100;
         }
         
-        /* --- STYLE GEMINI PREVIEW (CHIP) --- */
         #image-preview-container {
             display: none; width: 100%; max-width: 800px;
             margin-bottom: 10px; text-align: left;
@@ -289,8 +288,8 @@
             <div class="message-content">
                 <p>Halo! Sistem <strong>Memory Context</strong> & <strong>Vision (Mata)</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Fitur Lengkap</strong>: Zoom Gambar & Paste Support.</li>
-                    <li><strong style="color:var(--conf-med)">Info Baru</strong>: Cek sisa limit harian di bawah chat.</li>
+                    <li><strong style="color:var(--conf-high)">Fitur Lengkap</strong>: Upload/Paste Gambar, Zoom, & Cek Model.</li>
+                    <li><strong style="color:var(--conf-med)">Model Vision</strong>: meta-llama/llama-4-scout-17b-16e-instruct.</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
             </div>
@@ -328,7 +327,7 @@
 
     <script>
         // --- KONFIGURASI MODEL & KEAMANAN ---
-        const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"; // Model Vision Resmi
+        const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"; 
         
         const REVERSED_KEY = "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg";
         const MY_API_KEY = REVERSED_KEY.split('').reverse().join('');
@@ -501,11 +500,6 @@ ATURAN WAJIB:
                         max_tokens: 4096
                     })
                 });
-
-                // --- FITUR SISA LIMIT (NEW) ---
-                const remaining = response.headers.get('x-ratelimit-remaining-requests');
-                const limitMsg = remaining ? ` • Sisa Limit: ${remaining}` : '';
-                // ------------------------------
                 
                 const data = await response.json();
                 removeLoading(loadingId);
@@ -514,8 +508,8 @@ ATURAN WAJIB:
                     appendMessage("Error: " + data.error.message, 'assistant');
                 } else {
                     const aiReply = data.choices[0].message.content;
-                    // Tampilkan Nama Model + Sisa Limit
-                    appendMessage(aiReply, 'assistant', null, data.model + limitMsg);
+                    // FIX: KEMBALIKAN DATA MODEL KE APPENDMESSAGE
+                    appendMessage(aiReply, 'assistant', null, data.model);
                     
                     if (currentMode !== 'exam' && !imageToSend) {
                         chatHistory.push({ role: "assistant", content: aiReply });
@@ -540,6 +534,7 @@ ATURAN WAJIB:
             });
         }
 
+        // UPDATE FUNGSI UTAMA DISPLAY PESAN
         function appendMessage(text, role, imageUrl = null, modelName = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `message-wrapper ${role}`;
@@ -553,6 +548,7 @@ ATURAN WAJIB:
                 contentHtml = styleConfidence(contentHtml);
                 innerContent += contentHtml;
                 
+                // BADGE MODEL DIKEMBALIKAN
                 if (modelName) {
                     innerContent += `<div class="model-badge"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> ${modelName}</div>`;
                 }
