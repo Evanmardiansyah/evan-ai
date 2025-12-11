@@ -161,7 +161,19 @@
         }
         .assistant code { font-family: 'Consolas', monospace; font-size: 0.85em; color: var(--accent-color); }
         
-        /* KaTeX Font Fix */
+        /* --- FIX PENTING: SCROLL BAR MATEMATIKA DI HP --- */
+        .katex-display {
+            overflow-x: auto; /* Biar bisa digeser samping */
+            overflow-y: hidden;
+            max-width: 100%;
+            padding: 5px 0;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll di iPhone */
+        }
+        /* Custom scrollbar kecil biar manis */
+        .katex-display::-webkit-scrollbar { height: 4px; }
+        .katex-display::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 4px; opacity: 0.5; }
+        /* ----------------------------------------------- */
+
         .katex { font-size: 1.1em !important; }
 
         .confidence-high { color: var(--conf-high); font-weight: 700; }
@@ -284,9 +296,9 @@
         <div class="message-wrapper assistant">
             <div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div>
             <div class="message-content">
-                <p>Halo! Sistem <strong>Failover & Math Support (Ultimate Fix)</strong> sudah aktif.</p>
+                <p>Halo! Sistem <strong>Failover & Math Support (Mobile Fix)</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Matematika</strong>: Mengatasi bug simbol &lt; dan warna merah.</li>
+                    <li><strong style="color:var(--conf-high)">Matematika</strong>: Rumus panjang bisa di-scroll (geser samping).</li>
                     <li><strong style="color:var(--conf-med)">Counter Lokal</strong>: Cek hitungan penggunaan harian di bawah chat.</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
@@ -406,7 +418,7 @@ ATURAN WAJIB:
             });
         }
 
-        // --- FIX PENTING DI SINI: PEMBERSIH KODE ---
+        // --- UPDATE FUNGSI APPEND: PEMBERSIH KODE SEBELUM RENDER ---
         function appendMessage(text, role, imageUrl = null, modelName = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `message-wrapper ${role}`;
@@ -426,7 +438,7 @@ ATURAN WAJIB:
                 // 3. FIX HTML ENTITY (Mengatasi &lt;)
                 contentHtml = contentHtml.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
-                // 4. RENDER KATEX (Paksa Render di dalam pre/code juga jika masih ada)
+                // 4. RENDER KATEX
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = contentHtml;
                 renderMathInElement(tempDiv, {
@@ -437,7 +449,6 @@ ATURAN WAJIB:
                         {left: '\\[', right: '\\]', display: true}
                     ],
                     throwOnError: false,
-                    // OPSIONAL: Jika masih bandel, kita izinkan render di dalam code tag
                     ignoredTags: ["script", "noscript", "style", "textarea", "option"] 
                 });
                 contentHtml = tempDiv.innerHTML;
