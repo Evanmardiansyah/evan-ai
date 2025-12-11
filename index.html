@@ -10,6 +10,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
     <style>
         /* --- CSS VARIABLES --- */
         :root {
@@ -51,50 +55,27 @@
             --system-badge-text: #444;
         }
 
-        * { 
-            box-sizing: border-box; 
-            outline: none; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            margin: 0; 
-            padding: 0; 
-            height: 100vh; 
-            height: 100dvh;
+            margin: 0; padding: 0; height: 100vh; height: 100dvh;
             font-family: 'Inter', sans-serif; 
             background-color: var(--bg-color); 
             color: var(--text-primary); 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; /* Mencegah scroll pada body utama */
-            width: 100%;
-            position: fixed; /* Kunci posisi body */
+            display: flex; flex-direction: column; overflow: hidden; 
             transition: background-color 0.3s, color 0.3s;
         }
 
         /* HEADER */
         header { 
             padding: 12px 16px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
+            display: flex; align-items: center; justify-content: space-between;
             background: var(--header-bg); 
             border-bottom: 1px solid var(--border-color); 
             z-index: 10;
-            width: 100%;
         }
         
-        .brand { 
-            font-size: 1.1rem; 
-            font-weight: 600; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            flex-shrink: 0; 
-            color: var(--text-primary); 
-        }
-        
+        .brand { font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-shrink: 0; color: var(--text-primary); }
         .controls { display: flex; gap: 8px; align-items: center; }
 
         .theme-btn {
@@ -116,15 +97,10 @@
 
         /* CHAT AREA */
         #chat-container { 
-            flex: 1; 
-            overflow-y: auto; 
-            overflow-x: hidden; /* PENTING: Mencegah scroll samping di chat area */
+            flex: 1; overflow-y: auto; overflow-x: hidden;
             padding: 20px 16px 140px 16px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 24px; 
+            display: flex; flex-direction: column; gap: 24px; 
             scroll-behavior: smooth;
-            width: 100%;
         }
 
         .system-notification {
@@ -132,20 +108,12 @@
             padding: 6px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;
             text-align: center; margin: 10px 0; opacity: 0; animation: fadeIn 0.5s forwards;
             border: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px;
-            max-width: 90%; /* Supaya tidak nembus layar HP */
+            max-width: 90%;
         }
         .system-notification span { font-weight: 700; color: var(--accent-color); }
 
         /* MESSAGES */
-        .message-wrapper { 
-            display: flex; 
-            gap: 12px; 
-            opacity: 0; 
-            animation: fadeIn 0.3s forwards; 
-            max-width: 900px; 
-            margin: 0 auto; 
-            width: 100%; 
-        }
+        .message-wrapper { display: flex; gap: 12px; opacity: 0; animation: fadeIn 0.3s forwards; max-width: 900px; margin: 0 auto; width: 100%; }
         @keyframes fadeIn { to { opacity: 1; } }
 
         .avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
@@ -157,15 +125,8 @@
             max-width: 85%; font-size: 0.95rem; line-height: 1.6;
         }
 
-        /* --- FIX GAMBAR AGAR TIDAK GESER KIRI KANAN --- */
         .chat-image {
-            max-width: 100%; /* Jangan pakai pixel fix, pakai persen agar responsif */
-            height: auto;    /* Tinggi menyesuaikan */
-            border-radius: 12px; 
-            margin-bottom: 8px; 
-            display: block; 
-            border: 1px solid var(--border-color); 
-            cursor: pointer;
+            max-width: 100%; height: auto; border-radius: 12px; margin-bottom: 8px; display: block; border: 1px solid var(--border-color); cursor: pointer;
         }
 
         .message-wrapper.assistant .message-content { 
@@ -187,7 +148,7 @@
         /* TYPOGRAPHY */
         .assistant h1 { 
             font-size: 1.25rem; font-weight: 700; color: var(--conf-high); 
-            margin-top: 5px; margin-bottom: 5px; display: inline-block;
+            margin-top: 15px; margin-bottom: 5px; display: inline-block;
             border-bottom: 2px solid var(--conf-high); padding-bottom: 2px;
         }
         .assistant strong { font-weight: 600; color: var(--text-primary); }
@@ -196,10 +157,12 @@
         .assistant li { margin-bottom: 6px; }
         .assistant pre { 
             background: var(--code-bg); border-radius: 8px; padding: 15px; 
-            overflow-x: auto; border: 1px solid var(--border-color); margin: 15px 0; 
-            max-width: 100%; /* Mencegah pre code nembus layar */
+            overflow-x: auto; border: 1px solid var(--border-color); margin: 15px 0; max-width: 100%;
         }
         .assistant code { font-family: 'Consolas', monospace; font-size: 0.85em; color: var(--accent-color); }
+        
+        /* KaTeX Font Fix */
+        .katex { font-size: 1.1em !important; }
 
         .confidence-high { color: var(--conf-high); font-weight: 700; }
         .confidence-med  { color: var(--conf-med); font-weight: 700; }
@@ -212,7 +175,7 @@
             padding: 15px 15px; 
             padding-bottom: max(15px, env(safe-area-inset-bottom));
             display: flex; flex-direction: column; align-items: center; z-index: 100;
-            width: 100%; /* Pastikan tidak melebar */
+            width: 100%;
         }
         
         #image-preview-container {
@@ -227,14 +190,10 @@
             border-radius: 12px;
             border: 1px solid var(--border-color);
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            max-width: 100%; /* Biar chip gak nembus layar di HP kecil */
+            max-width: 100%;
         }
         
-        #image-preview { 
-            height: 48px; width: auto; 
-            border-radius: 8px; display: block; cursor: pointer; 
-        }
-        
+        #image-preview { height: 48px; width: auto; border-radius: 8px; display: block; cursor: pointer; }
         .preview-info { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); }
 
         #remove-image-btn {
@@ -256,8 +215,7 @@
         #user-input { 
             flex: 1; background: transparent; border: none; color: var(--text-primary); 
             font-size: 1rem; padding: 12px 0; font-family: inherit; 
-            resize: none; 
-            overflow-y: auto; max-height: 200px; min-height: 24px; line-height: 1.5;
+            resize: none; overflow-y: auto; max-height: 200px; min-height: 24px; line-height: 1.5;
         }
         #user-input::-webkit-scrollbar { width: 4px; }
         #user-input::-webkit-scrollbar-thumb { background-color: var(--text-secondary); border-radius: 4px; opacity: 0.5; }
@@ -272,31 +230,24 @@
         #attach-btn { margin-right: 4px; }
         #attach-btn:hover { color: var(--text-primary); background: var(--hover-bg); }
 
-        /* --- MODAL (LIGHTBOX) GAMBAR --- */
+        /* MODAL */
         .modal {
-            display: none; position: fixed; z-index: 2000; 
-            left: 0; top: 0; width: 100%; height: 100%; 
-            background-color: rgba(0,0,0,0.9); overflow: hidden; /* Ganti auto ke hidden biar background gak scroll */
-            align-items: center; justify-content: center;
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.9); overflow: hidden; align-items: center; justify-content: center;
         }
         .modal-content {
-            margin: auto; display: block; 
-            max-width: 90%; max-height: 85vh; /* Sedikit dikurangi biar aman */
+            margin: auto; display: block; max-width: 90%; max-height: 85vh;
             border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            animation: zoomIn 0.3s;
-            object-fit: contain; /* Pastikan gambar full terlihat proporsional */
+            animation: zoomIn 0.3s; object-fit: contain;
         }
         @keyframes zoomIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         
         .close-modal {
-            position: absolute; top: 20px; right: 30px;
-            color: #f1f1f1; font-size: 40px; font-weight: bold;
-            cursor: pointer; transition: 0.3s;
-            z-index: 2001; /* Pastikan di atas gambar */
+            position: absolute; top: 20px; right: 30px; color: #f1f1f1; font-size: 40px; font-weight: bold;
+            cursor: pointer; transition: 0.3s; z-index: 2001;
         }
         .close-modal:hover { color: #ef5350; }
 
-        /* Utilities */
         .msg-toolbar { display: flex; gap: 8px; margin-top: 5px; opacity: 0.6; }
         .icon-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 5px; }
         .typing span { display: inline-block; width: 5px; height: 5px; background: var(--text-secondary); border-radius: 50%; margin: 0 2px; animation: blink 1.4s infinite; }
@@ -333,9 +284,9 @@
         <div class="message-wrapper assistant">
             <div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div>
             <div class="message-content">
-                <p>Halo! Sistem <strong>Failover Key (Kunci Cadangan)</strong> sudah aktif.</p>
+                <p>Halo! Sistem <strong>Failover & Math Support (Ultimate Fix)</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Mobile Fix</strong>: Tampilan gambar responsif (tidak goyang).</li>
+                    <li><strong style="color:var(--conf-high)">Matematika</strong>: Mengatasi bug simbol &lt; dan warna merah.</li>
                     <li><strong style="color:var(--conf-med)">Counter Lokal</strong>: Cek hitungan penggunaan harian di bawah chat.</li>
                 </ul>
                 <p>Silakan dicoba, Gan!</p>
@@ -354,13 +305,10 @@
 
         <div class="input-box">
             <input type="file" id="image-input" accept="image/*" style="display: none;" onchange="handleImageSelect()">
-            
             <button id="attach-btn" onclick="document.getElementById('image-input').click()">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
             </button>
-
             <textarea id="user-input" placeholder="Ketik pesan atau Ctrl+V..." rows="1"></textarea>
-            
             <button id="send-btn" onclick="triggerSend()">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
@@ -373,41 +321,37 @@
     </div>
 
     <script>
-        // --- KONFIGURASI MODEL & API KEY (FAILOVER) ---
         const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"; 
 
-        // DAFTAR API KEYS (Reversed)
+        // --- MASUKKAN KEY DI SINI ---
         const REVERSED_KEYS = [
             "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg", // Key 1
             "vJsB90804XC68OOshaBz0HGYYF3bydGWWXx5lKVgT9FZiDlTyO8r_ksg"        // Key 2
         ];
         
         let currentKeyIndex = 0; 
-
-        // --- FUNGSI UTILITY ---
         let chatHistory = []; 
         let currentImageBase64 = null; 
 
+        // --- UPDATE PROMPT: Paksa LaTeX ---
         const MODES = {
             fast: { 
-                name: "Cepat (Flash)", desc: "Mode santai & respon kilat",
-                model: "llama-3.1-8b-instant", temp: 0.8, 
-                prompt: "Jawab cepat dan santai." 
+                name: "Cepat (Flash)", desc: "Mode santai", model: "llama-3.1-8b-instant", temp: 0.8, 
+                prompt: "Jawab cepat. UNTUK MATEMATIKA: Gunakan format LaTeX dengan $...$ untuk inline dan $$...$$ untuk block. JANGAN pernah menggunakan markdown code block (```) untuk rumus matematika." 
             },
             pro: { 
-                name: "Pro (Versatile)", desc: "Mode standar untuk tugas umum",
-                model: "llama-3.3-70b-versatile", temp: 0.6, 
-                prompt: "Jawab detail dan terstruktur (Markdown)." 
+                name: "Pro (Versatile)", desc: "Mode standar", model: "llama-3.3-70b-versatile", temp: 0.6, 
+                prompt: "Jawab detail. UNTUK MATEMATIKA: Gunakan format LaTeX dengan $...$ untuk inline dan $$...$$ untuk block. JANGAN pernah menggunakan markdown code block (```) untuk rumus matematika." 
             },
             exam: { 
-                name: "Ujian (Reasoning)", desc: "Analisis logika & deteksi jebakan",
-                model: "llama-3.3-70b-versatile", temp: 0.1, 
+                name: "Ujian (Reasoning)", desc: "Analisis logika", model: "llama-3.3-70b-versatile", temp: 0.1, 
                 prompt: `Kamu adalah Asisten Ujian.
 ATURAN WAJIB:
 1. Mulai dengan "Alasan Utama: [Penjelasan]"
 2. Lanjut dengan "Kenapa yang lain salah?"
 3. Sertakan "(Tingkat Keyakinan: XX%)"
-4. BARIS TERAKHIR WAJIB: "# JAWABAN: [Huruf]"` 
+4. BARIS TERAKHIR WAJIB: "# JAWABAN: [Huruf]"
+5. UNTUK MATEMATIKA: Gunakan format LaTeX dengan $...$ untuk inline dan $$...$$ untuk block. DILARANG KERAS menggunakan markdown code block ( \`\`\` ) untuk rumus.` 
             }
         };
 
@@ -427,105 +371,31 @@ ATURAN WAJIB:
             const today = new Date().toDateString();
             const savedDate = localStorage.getItem('evan_ai_date');
             let count = parseInt(localStorage.getItem('evan_ai_count') || '0');
-            if (savedDate !== today) {
-                count = 0;
-                localStorage.setItem('evan_ai_date', today);
-                localStorage.setItem('evan_ai_count', count);
-            }
+            if (savedDate !== today) { count = 0; localStorage.setItem('evan_ai_date', today); localStorage.setItem('evan_ai_count', count); }
             return count;
         }
-
         function incrementDailyUsage() {
-            let count = getDailyUsage();
-            count++;
-            localStorage.setItem('evan_ai_count', count);
-            return count;
+            let count = getDailyUsage(); count++; localStorage.setItem('evan_ai_count', count); return count;
         }
-
         function changeMode() {
-            currentMode = modeSelect.value;
-            chatHistory = []; 
-            const config = MODES[currentMode];
-            const sysDiv = document.createElement('div');
-            sysDiv.className = 'system-notification';
-            sysDiv.innerHTML = `Mode diubah ke <span>${config.name}</span> • Memori di-reset`;
-            chatContainer.appendChild(sysDiv);
-            chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+            currentMode = modeSelect.value; chatHistory = []; const config = MODES[currentMode]; const sysDiv = document.createElement('div'); sysDiv.className = 'system-notification'; sysDiv.innerHTML = `Mode diubah ke <span>${config.name}</span> • Memori di-reset`; chatContainer.appendChild(sysDiv); chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
-
         function showModal(src) { modal.style.display = "flex"; modalImg.src = src; }
         function closeModal() { modal.style.display = "none"; }
-
-        function handleImageSelect() {
-            const file = document.getElementById('image-input').files[0];
-            if (file) processImage(file);
-        }
-
-        userInput.addEventListener('paste', function(e) {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (let index in items) {
-                const item = items[index];
-                if (item.kind === 'file' && item.type.startsWith('image/')) {
-                    const blob = item.getAsFile();
-                    processImage(blob);
-                    e.preventDefault(); 
-                }
-            }
-        });
-
-        function processImage(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                currentImageBase64 = e.target.result;
-                imagePreview.src = currentImageBase64;
-                imagePreviewContainer.style.display = 'block'; 
-                userInput.focus();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removeImage() {
-            currentImageBase64 = null;
-            document.getElementById('image-input').value = ""; 
-            imagePreviewContainer.style.display = 'none';
-        }
-
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto'; 
-            this.style.height = (this.scrollHeight) + 'px'; 
-            if(this.value === '') this.style.height = 'auto';
-        });
-
-        userInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); triggerSend();
-            }
-        });
-
-        function triggerSend() {
-            const event = new Event('submit', { cancelable: true });
-            sendMessage(event);
-        }
-
-        function toggleTheme() {
-            const next = htmlTag.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            htmlTag.setAttribute('data-theme', next);
-            localStorage.setItem('evan_ai_theme', next);
-            updateThemeIcon(next);
-        }
-
-        function updateThemeIcon(t) {
-            themeIcon.innerHTML = t === 'dark' 
-                ? `<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>`
-                : `<path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/>`;
-        }
-
+        function handleImageSelect() { const file = document.getElementById('image-input').files[0]; if (file) processImage(file); }
+        userInput.addEventListener('paste', function(e) { const items = (e.clipboardData || e.originalEvent.clipboardData).items; for (let index in items) { const item = items[index]; if (item.kind === 'file' && item.type.startsWith('image/')) { const blob = item.getAsFile(); processImage(blob); e.preventDefault(); } } });
+        function processImage(file) { const reader = new FileReader(); reader.onload = function(e) { currentImageBase64 = e.target.result; imagePreview.src = currentImageBase64; imagePreviewContainer.style.display = 'block'; userInput.focus(); }; reader.readAsDataURL(file); }
+        function removeImage() { currentImageBase64 = null; document.getElementById('image-input').value = ""; imagePreviewContainer.style.display = 'none'; }
+        userInput.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; if(this.value === '') this.style.height = 'auto'; });
+        userInput.addEventListener('keydown', function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); triggerSend(); } });
+        function triggerSend() { const event = new Event('submit', { cancelable: true }); sendMessage(event); }
+        function toggleTheme() { const next = htmlTag.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; htmlTag.setAttribute('data-theme', next); localStorage.setItem('evan_ai_theme', next); updateThemeIcon(next); }
+        function updateThemeIcon(t) { themeIcon.innerHTML = t === 'dark' ? `<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>` : `<path d="M6.76 4.84l-1.8-1.79-1.41 1.41 1.79 1.79 1.42-1.41zM4 10.5H1v2h3v-2zm9-9.95h-2V3.5h2V.55zm7.45 3.91l-1.41-1.41-1.79 1.79 1.41 1.41 1.79-1.79zm-3.21 13.7l1.79 1.8 1.41-1.41-1.8-1.79-1.4 1.4zM20 10.5v2h3v-2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-1 16.95h2V19.5h-2v2.95zm-7.45-3.91l1.41 1.41 1.79-1.8-1.41-1.41-1.79 1.8z"/>`; }
         const savedTheme = localStorage.getItem('evan_ai_theme') || 'dark';
         htmlTag.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
-
         marked.setOptions({ highlight: (c, l) => highlight.getLanguage(l) ? highlight.highlight(c, {language:l}).value : highlight.highlightAuto(c).value, breaks: true });
-
+        
         function styleConfidence(html) {
             return html.replace(/\(Tingkat Keyakinan:\s*(\d+)%\)/gi, function(match, score) {
                 let num = parseInt(score);
@@ -536,23 +406,49 @@ ATURAN WAJIB:
             });
         }
 
+        // --- FIX PENTING DI SINI: PEMBERSIH KODE ---
         function appendMessage(text, role, imageUrl = null, modelName = null) {
             const wrapper = document.createElement('div');
             wrapper.className = `message-wrapper ${role}`;
-            
             let innerContent = "";
             if (imageUrl) innerContent += `<img src="${imageUrl}" class="chat-image" onclick="showModal(this.src)">`;
             
             if (role === 'assistant') {
                 const iconSVG = `<svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg>`;
-                let contentHtml = marked.parse(text || "");
+                
+                // 1. HAPUS WRAPPER CODE BLOCK JIKA ISINYA MATEMATIKA (Mengatasi Merah)
+                let cleanedText = text || "";
+                cleanedText = cleanedText.replace(/```(?:latex|math|tex)\n([\s\S]*?)\n```/gi, '$1'); 
+
+                // 2. MARKDOWN PARSE
+                let contentHtml = marked.parse(cleanedText);
+                
+                // 3. FIX HTML ENTITY (Mengatasi &lt;)
+                contentHtml = contentHtml.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+
+                // 4. RENDER KATEX (Paksa Render di dalam pre/code juga jika masih ada)
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = contentHtml;
+                renderMathInElement(tempDiv, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false,
+                    // OPSIONAL: Jika masih bandel, kita izinkan render di dalam code tag
+                    ignoredTags: ["script", "noscript", "style", "textarea", "option"] 
+                });
+                contentHtml = tempDiv.innerHTML;
+
+                // 5. WARNA CONFIDENCE
                 contentHtml = styleConfidence(contentHtml);
                 innerContent += contentHtml;
                 
                 if (modelName) {
                     innerContent += `<div class="model-badge"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> ${modelName}</div>`;
                 }
-
                 wrapper.innerHTML = `<div class="avatar">${iconSVG}</div><div class="message-content">${innerContent}<div class="msg-toolbar"><button class="icon-btn" onclick="copyText(this)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button></div></div>`;
             } else {
                 if (text) innerContent += `<div>${text.replace(/\n/g, '<br>')}</div>`;
@@ -562,21 +458,9 @@ ATURAN WAJIB:
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
 
-        function showLoading() {
-            const id = Date.now();
-            const wrapper = document.createElement('div'); wrapper.id = id; wrapper.className = 'message-wrapper assistant';
-            wrapper.innerHTML = `<div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div><div class="message-content typing"><span></span><span></span><span></span></div>`;
-            chatContainer.appendChild(wrapper); chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); return id;
-        }
+        function showLoading() { /* ... */ const id = Date.now(); const wrapper = document.createElement('div'); wrapper.id = id; wrapper.className = 'message-wrapper assistant'; wrapper.innerHTML = `<div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div><div class="message-content typing"><span></span><span></span><span></span></div>`; chatContainer.appendChild(wrapper); chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); return id; }
         function removeLoading(id) { document.getElementById(id)?.remove(); }
-
-        function copyText(btn) {
-            const content = btn.closest('.message-content').innerText;
-            navigator.clipboard.writeText(content);
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="#4caf50" width="16" height="16"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`;
-            setTimeout(() => btn.innerHTML = originalHTML, 2000);
-        }
+        function copyText(btn) { const content = btn.closest('.message-content').innerText; navigator.clipboard.writeText(content); const originalHTML = btn.innerHTML; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="#4caf50" width="16" height="16"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`; setTimeout(() => btn.innerHTML = originalHTML, 2000); }
 
         async function sendMessage(e) {
             if(e) e.preventDefault();
@@ -613,9 +497,7 @@ ATURAN WAJIB:
                 }
             }
 
-            // --- FAILOVER LOOP ---
             for (let attempt = 0; attempt < REVERSED_KEYS.length; attempt++) {
-                
                 const currentReversedKey = REVERSED_KEYS[currentKeyIndex];
                 const currentKey = currentReversedKey.split('').reverse().join('');
 
@@ -634,27 +516,18 @@ ATURAN WAJIB:
                     const data = await response.json();
 
                     if (response.ok && !data.error) {
-                        // SUKSES
                         successful = true; 
                         removeLoading(loadingId);
-                        
                         const aiReply = data.choices[0].message.content;
-                        
-                        // Update Counter Lokal
                         const usageCount = incrementDailyUsage();
                         const infoMsg = ` • 🔑 Key #${currentKeyIndex + 1} • 📅 Hari ini: ${usageCount} Request`;
-                        
                         appendMessage(aiReply, 'assistant', null, data.model + infoMsg);
-                        
                         if (currentMode !== 'exam' && !imageToSend) {
                             chatHistory.push({ role: "assistant", content: aiReply });
                         }
                         break; 
-
                     } else if (response.status === 429 || (data.error && (data.error.type === 'rate_limit_error' || data.error.type === 'invalid_api_key'))) {
-                        // LIMIT/INVALID -> Pindah Key
                         currentKeyIndex = (currentKeyIndex + 1) % REVERSED_KEYS.length; 
-                        
                         const keyStatus = response.status === 429 ? 'LIMIT' : 'INVALID';
                         const sysDiv = document.createElement('div');
                         sysDiv.className = 'system-notification';
@@ -662,17 +535,13 @@ ATURAN WAJIB:
                         sysDiv.innerHTML = `⚠️ Key #${currentKeyIndex === 0 ? REVERSED_KEYS.length : currentKeyIndex} ${keyStatus}. Pindah ke Key #${currentKeyIndex + 1}...`;
                         chatContainer.appendChild(sysDiv);
                         chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-                        
                         continue; 
-                    
                     } else {
-                        // Error Lain
                         removeLoading(loadingId);
                         appendMessage(`Error tak terduga (${response.status}): ` + (data.error?.message || response.statusText), 'assistant');
                         successful = true; 
                         break;
                     }
-
                 } catch (err) {
                     removeLoading(loadingId);
                     appendMessage("Gagal koneksi jaringan.", 'assistant');
@@ -680,12 +549,10 @@ ATURAN WAJIB:
                     break;
                 }
             } 
-
             if (!successful) {
                 removeLoading(loadingId);
                 appendMessage("❌ ERROR: Semua API Key gagal. Coba lagi nanti.", 'assistant');
             }
-
             userInput.disabled = false; sendBtn.disabled = false; userInput.focus();
         }
     </script>
