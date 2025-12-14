@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>E-AI</title>
+    <title>E-AI Ultimate</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -91,7 +91,7 @@
             appearance: none; background-color: var(--hover-bg); color: var(--text-primary);
             border: 1px solid var(--border-color); padding: 6px 28px 6px 12px; border-radius: 20px;
             font-size: 0.8rem; font-weight: 500; font-family: inherit;
-            max-width: 140px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; cursor: pointer;
+            max-width: 155px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; cursor: pointer;
         }
         .mode-arrow { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; width: 10px; fill: var(--text-secondary); }
 
@@ -125,9 +125,31 @@
             max-width: 85%; font-size: 0.95rem; line-height: 1.6;
         }
 
+        /* --- UPDATE PENTING: GAYA GAMBAR (THUMBNAIL STYLE) --- */
         .chat-image {
-            max-width: 100%; height: auto; border-radius: 12px; margin-bottom: 8px; display: block; border: 1px solid var(--border-color); cursor: pointer;
+            width: auto;
+            height: auto;
+            max-width: 300px;  /* Desktop: Batasi lebar biar gak raksasa */
+            max-height: 250px; /* Desktop: Batasi tinggi */
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: block;
+            border: 1px solid var(--border-color);
+            cursor: zoom-in; /* Kursor kaca pembesar */
+            object-fit: contain;
+            background-color: var(--input-bg);
+            transition: opacity 0.2s;
         }
+        .chat-image:hover { opacity: 0.9; }
+
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            .chat-image {
+                max-width: 100%;   /* HP: Full width bubble */
+                max-height: 200px; /* HP: Batasi tinggi biar gak scroll jauh */
+            }
+        }
+        /* ----------------------------------------------------- */
 
         .message-wrapper.assistant .message-content { 
             background: transparent; width: 100%; color: var(--text-primary);
@@ -161,19 +183,10 @@
         }
         .assistant code { font-family: 'Consolas', monospace; font-size: 0.85em; color: var(--accent-color); }
         
-        /* --- FIX PENTING: SCROLL BAR MATEMATIKA DI HP --- */
-        .katex-display {
-            overflow-x: auto; /* Biar bisa digeser samping */
-            overflow-y: hidden;
-            max-width: 100%;
-            padding: 5px 0;
-            -webkit-overflow-scrolling: touch; /* Smooth scroll di iPhone */
-        }
-        /* Custom scrollbar kecil biar manis */
+        /* KaTeX Scroll Fix */
+        .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 5px 0; -webkit-overflow-scrolling: touch; }
         .katex-display::-webkit-scrollbar { height: 4px; }
         .katex-display::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 4px; opacity: 0.5; }
-        /* ----------------------------------------------- */
-
         .katex { font-size: 1.1em !important; }
 
         .confidence-high { color: var(--conf-high); font-weight: 700; }
@@ -285,7 +298,8 @@
                 <select id="mode-select" class="mode-select" onchange="changeMode()">
                     <option value="fast">⚡ Cepat</option>
                     <option value="pro" selected>✨ Pro</option>
-                    <option value="exam">🛡️ Ujian</option>
+                    <option value="exam">🛡️ Ujian 1 (Llama)</option>
+                    <option value="exam2">🦖 Ujian 2 (Monster)</option>
                 </select>
                 <svg class="mode-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
             </div>
@@ -296,12 +310,12 @@
         <div class="message-wrapper assistant">
             <div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div>
             <div class="message-content">
-                <p>Halo! Sistem <strong>Failover & Math Support (Mobile Fix)</strong> sudah aktif.</p>
+                <p>Halo! Sistem <strong>Auto-Switch Mode</strong> sudah aktif.</p>
                 <ul>
-                    <li><strong style="color:var(--conf-high)">Matematika</strong>: Rumus panjang bisa di-scroll (geser samping).</li>
-                    <li><strong style="color:var(--conf-med)">Counter Lokal</strong>: Cek hitungan penggunaan harian di bawah chat.</li>
+                    <li><strong style="color:var(--conf-high)">🛡️ Ujian 1:</strong> Teks (Llama 70B) ↔️ Gambar (Scout).</li>
+                    <li><strong style="color:var(--conf-med)">🦖 Ujian 2:</strong> Teks (GPT-OSS 120B) ↔️ Gambar (Maverick).</li>
                 </ul>
-                <p>Silakan dicoba, Gan!</p>
+                <p>Coba upload gambar atau ketik soal, saya akan pilihkan otak yang paling cocok!</p>
             </div>
         </div>
     </div>
@@ -333,34 +347,60 @@
     </div>
 
     <script>
-        const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"; 
-
         // --- MASUKKAN KEY DI SINI ---
         const REVERSED_KEYS = [
             "kuLlV1jjfzyjgEcxP1V9EYTLYF3bydGWqYitLL8aqD2ECmfIvma1_ksg", // Key 1
-            "vJsB90804XC68OOshaBz0HGYYF3bydGWWXx5lKVgT9FZiDlTyO8r_ksg"        // Key 2
+            "vJsB90804XC68OOshaBz0HGYYF3bydGWWXx5lKVgT9FZiDlTyO8r_ksg"  // Key 2
         ];
         
         let currentKeyIndex = 0; 
         let chatHistory = []; 
         let currentImageBase64 = null; 
 
-        // --- UPDATE PROMPT: Paksa LaTeX ---
+        // --- KONFIGURASI MODE & AUTO-SWITCH ---
         const MODES = {
             fast: { 
-                name: "Cepat (Flash)", desc: "Mode santai", model: "llama-3.1-8b-instant", temp: 0.8, 
+                name: "Cepat (Flash)", 
+                desc: "Mode santai", 
+                model: "openai/gpt-oss-20b", // Model Teks
+                visionModel: "meta-llama/llama-4-scout-17b-16e-instruct", // Model Gambar (Fallback)
+                temp: 0.8, 
                 prompt: "Jawab cepat. UNTUK MATEMATIKA: Gunakan format LaTeX dengan $...$ untuk inline dan $$...$$ untuk block. JANGAN pernah menggunakan markdown code block (```) untuk rumus matematika." 
             },
             pro: { 
-                name: "Pro (Versatile)", desc: "Mode standar", model: "llama-3.3-70b-versatile", temp: 0.6, 
+                name: "Pro (Versatile)", 
+                desc: "Mode standar", 
+                model: "llama-3.3-70b-versatile", 
+                visionModel: "meta-llama/llama-4-scout-17b-16e-instruct",
+                temp: 0.6, 
                 prompt: "Jawab detail. UNTUK MATEMATIKA: Gunakan format LaTeX dengan $...$ untuk inline dan $$...$$ untuk block. JANGAN pernah menggunakan markdown code block (```) untuk rumus matematika." 
             },
+            // MODE UJIAN 1 (Switch: Llama 70B <-> Scout)
             exam: { 
-                name: "Ujian (Reasoning)", desc: "Analisis logika", model: "llama-3.3-70b-versatile", temp: 0.1, 
+                name: "🛡️ Ujian 1 (Llama)", 
+                desc: "Analisis logika", 
+                model: "llama-3.3-70b-versatile", // JIKA TEKS
+                visionModel: "meta-llama/llama-4-scout-17b-16e-instruct", // JIKA GAMBAR
+                temp: 0.1, 
                 prompt: `Kamu adalah Asisten Ujian.
 ATURAN WAJIB:
 1. Mulai dengan "Alasan Utama: [Penjelasan]"
 2. Lanjut dengan "Kenapa yang lain salah?"
+3. Sertakan "(Tingkat Keyakinan: XX%)"
+4. BARIS TERAKHIR WAJIB: "# JAWABAN: [Huruf]"
+5. UNTUK MATEMATIKA: Gunakan format LaTeX dengan $...$ untuk inline dan $$...$$ untuk block. DILARANG KERAS menggunakan markdown code block ( \`\`\` ) untuk rumus.` 
+            },
+            // MODE UJIAN 2 (Switch: GPT-OSS <-> Maverick)
+            exam2: { 
+                name: "🦖 Ujian 2 (Monster)", 
+                desc: "Analisis berat", 
+                model: "openai/gpt-oss-120b", // JIKA TEKS
+                visionModel: "meta-llama/llama-4-maverick-17b-128e-instruct", // JIKA GAMBAR
+                temp: 0.1, 
+                prompt: `Kamu adalah Asisten Ujian Tingkat Lanjut.
+ATURAN WAJIB:
+1. Analisis soal dengan sangat mendalam.
+2. Jelaskan logika deduktif langkah demi langkah.
 3. Sertakan "(Tingkat Keyakinan: XX%)"
 4. BARIS TERAKHIR WAJIB: "# JAWABAN: [Huruf]"
 5. UNTUK MATEMATIKA: Gunakan format LaTeX dengan $...$ untuk inline dan $$...$$ untuk block. DILARANG KERAS menggunakan markdown code block ( \`\`\` ) untuk rumus.` 
@@ -410,11 +450,7 @@ ATURAN WAJIB:
         
         function styleConfidence(html) {
             return html.replace(/\(Tingkat Keyakinan:\s*(\d+)%\)/gi, function(match, score) {
-                let num = parseInt(score);
-                let cssClass = 'confidence-low'; 
-                if (num >= 80) cssClass = 'confidence-high'; 
-                else if (num >= 50) cssClass = 'confidence-med'; 
-                return `<span class="${cssClass}">${match}</span>`;
+                let num = parseInt(score); let cssClass = 'confidence-low'; if (num >= 80) cssClass = 'confidence-high'; else if (num >= 50) cssClass = 'confidence-med'; return `<span class="${cssClass}">${match}</span>`;
             });
         }
 
@@ -469,7 +505,7 @@ ATURAN WAJIB:
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
 
-        function showLoading() { /* ... */ const id = Date.now(); const wrapper = document.createElement('div'); wrapper.id = id; wrapper.className = 'message-wrapper assistant'; wrapper.innerHTML = `<div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div><div class="message-content typing"><span></span><span></span><span></span></div>`; chatContainer.appendChild(wrapper); chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); return id; }
+        function showLoading() { const id = Date.now(); const wrapper = document.createElement('div'); wrapper.id = id; wrapper.className = 'message-wrapper assistant'; wrapper.innerHTML = `<div class="avatar"><svg viewBox="0 0 24 24" width="24" height="24"><path fill="url(#g1)" d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/></svg></div><div class="message-content typing"><span></span><span></span><span></span></div>`; chatContainer.appendChild(wrapper); chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); return id; }
         function removeLoading(id) { document.getElementById(id)?.remove(); }
         function copyText(btn) { const content = btn.closest('.message-content').innerText; navigator.clipboard.writeText(content); const originalHTML = btn.innerHTML; btn.innerHTML = `<svg viewBox="0 0 24 24" fill="#4caf50" width="16" height="16"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`; setTimeout(() => btn.innerHTML = originalHTML, 2000); }
 
@@ -488,20 +524,28 @@ ATURAN WAJIB:
             const loadingId = showLoading();
             const selectedConfig = MODES[currentMode];
             let messagesPayload = [];
-            let modelToUse = selectedConfig.model; 
+            let modelToUse; 
             let successful = false;
 
+            // --- LOGIKA CERDAS: MEMILIH MODEL SESUAI KONDISI ---
             if (imageToSend) {
-                modelToUse = VISION_MODEL; 
+                // JIKA ADA GAMBAR: Pakai Vision Model dari Mode yang dipilih
+                modelToUse = selectedConfig.visionModel; 
+                
                 const userContent = [
                     { type: "text", text: text || "Jelaskan gambar ini" }, 
                     { type: "image_url", image_url: { url: imageToSend } }
                 ];
                 messagesPayload = [{ role: "system", content: selectedConfig.prompt }, { role: "user", content: userContent }];
             } else {
-                if (currentMode === 'exam') {
+                // JIKA CUMA TEKS: Pakai Model Teks dari Mode yang dipilih
+                modelToUse = selectedConfig.model;
+
+                if (currentMode === 'exam' || currentMode === 'exam2') {
+                    // Mode Ujian: Tanpa Ingatan
                     messagesPayload = [{ role: "system", content: selectedConfig.prompt }, { role: "user", content: text }];
                 } else {
+                    // Mode Lain: Pakai Ingatan
                     chatHistory.push({ role: "user", content: text });
                     if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
                     messagesPayload = [{ role: "system", content: selectedConfig.prompt }, ...chatHistory];
@@ -533,7 +577,9 @@ ATURAN WAJIB:
                         const usageCount = incrementDailyUsage();
                         const infoMsg = ` • 🔑 Key #${currentKeyIndex + 1} • 📅 Hari ini: ${usageCount} Request`;
                         appendMessage(aiReply, 'assistant', null, data.model + infoMsg);
-                        if (currentMode !== 'exam' && !imageToSend) {
+                        
+                        // Simpan ingatan jika bukan mode ujian & bukan gambar
+                        if (currentMode !== 'exam' && currentMode !== 'exam2' && !imageToSend) {
                             chatHistory.push({ role: "assistant", content: aiReply });
                         }
                         break; 
